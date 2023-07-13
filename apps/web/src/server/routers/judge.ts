@@ -64,6 +64,9 @@ const judgeRouter = router({
                   select: {
                     name: true,
                     start: true,
+                    circuits: true,
+                    event: true,
+                    seasonId: true,
                     topic: {
                       include: {
                         tags: true

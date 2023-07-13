@@ -25,6 +25,7 @@ const RoundSpeakingResultTable = ({ data }: RoundSpeakingResultProps) => {
           }),
         ] as ColumnDef<ExpandedRoundSpeakerResult>[],
       }}
+      nestingLevel={3}
     />
   );
 };

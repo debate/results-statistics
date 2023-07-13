@@ -64,6 +64,7 @@ const RoundTable = ({
             query: omit(query, ["id", "topics", "topicTags"]),
           })
         }
+        nestingLevel={2}
         sortable
       />
       <div className="w-full flex justify-center p-3">

@@ -87,6 +87,7 @@ const TournamentRoundsTable = ({ parent }: TournamentRoundsTableProps) => {
           ] as ColumnDef<ExpandedRound>[],
         }}
         child={({ row }) => <RoundTable row={row} result={parent} />}
+        nestingLevel={1}
         sortable
       />
     </div>

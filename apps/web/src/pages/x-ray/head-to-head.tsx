@@ -76,6 +76,7 @@ const HeadToHead = () => {
       staleTime: 1000 * 60 * 60 * 24,
     }
   );
+
   const avgJudgeIndex = useMemo(
     () =>
       usingJudges ? _.mean(data?.judgeRankings.map((r) => r.index)) : undefined,
@@ -103,7 +104,7 @@ const HeadToHead = () => {
   }, [data]);
   const team1Wp = useMemo(
     () =>
-      team1Otr && team2Otr
+      team1Otr !== undefined && team2Otr !== undefined
         ? boundWp(
             team1Otr > team2Otr
               ? 100 * getExpectedWP(team1Otr, team2Otr, avgJudgeIndex)
@@ -114,7 +115,7 @@ const HeadToHead = () => {
   );
   const team2Wp = useMemo(
     () =>
-      team1Otr && team2Otr
+      team1Otr !== undefined && team2Otr !== undefined
         ? boundWp(
             team1Otr > team2Otr
               ? 100 - 100 * getExpectedWP(team1Otr, team2Otr, avgJudgeIndex)
@@ -126,8 +127,8 @@ const HeadToHead = () => {
   const chartData = useMemo(
     () =>
       data &&
-      team1Otr &&
-      team2Otr && [
+      team1Otr !== undefined &&
+      team2Otr !== undefined && [
         {
           label: team1Code && truncateTeamCode(team1Code),
           pct: team1Wp,
@@ -316,7 +317,7 @@ const HeadToHead = () => {
                 <JudgingInfoSentence />
               )}{" "}
               our model trained on over 100,000 rounds expects{" "}
-              {team1Otr && team2Otr ? (
+              {team1Otr !== undefined && team2Otr !== undefined ? (
                 team1Otr > team2Otr ? (
                   <span className="text-sky-400">{team1Code}</span>
                 ) : (
@@ -326,7 +327,7 @@ const HeadToHead = () => {
                 "--"
               )}{" "}
               to be the favorite, with an expected win probability of{" "}
-              {team1Otr && team2Otr ? (
+              {team1Otr !== undefined && team2Otr !== undefined ? (
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-violet-400">
                   {Math.floor(
                     boundWp(
