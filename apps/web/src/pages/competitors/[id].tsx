@@ -47,7 +47,6 @@ const Competitor = () => {
   const SEO_DESCRIPTION = `${
     data?.name || "--"
   }'s competitor statistics, exclusively on Debate Land.`;
-  console.log(speaks);
 
   return (
     <>

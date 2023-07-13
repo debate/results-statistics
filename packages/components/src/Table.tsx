@@ -29,6 +29,8 @@ import clsx from "clsx";
 import { BiLinkExternal } from "react-icons/bi";
 import { useWindowSize } from "./hooks";
 
+type NestingLevel = 0 | 1 | 2 | 3;
+
 const getPositionColumn = <T,>(
   pagination: PaginationState = { pageIndex: 0, pageSize: 0 }
 ) => ({
@@ -82,21 +84,24 @@ const sizes = {
 
 ("border-gray-400 border-gray-400/90 border-gray-400/80 border-gray-400/70 border-gray-400/60 border-gray-400/50 border-gray-400/40 border-gray-400/30 border-gray-400/20 border-gray-400/10");
 
-const getClassNames = (nestingLevel: number) => ({
-  wrapper: `rounded-md border border-gray-400/${
-    30 + 20 * nestingLevel
-  } dark:border-gray-400/${20 + 20 * nestingLevel}`,
+const NestingLevelBorderLookup: {
+  [k in NestingLevel]: string;
+} = {
+  0: "dark:border-gray-200/20",
+  1: "border-sky-200 dark:border-sky-700/50",
+  2: "border-purple-200 dark:border-purple-400/30",
+  3: "border-red-200 dark:border-red-400/30",
+};
+
+const getClassNames = (nestingLevel: NestingLevel) => ({
+  wrapper: `rounded-md border ${NestingLevelBorderLookup[nestingLevel]}`,
   table: "table-auto sm:table-fixed md:table-auto mx-auto w-full text-sm",
   td: "py-3 px-2",
   header: {
     th: "py-3 px-2 text-left",
-    tr: `dark:text-gray-300 text-gray-700 border-b border-gray-400/${
-      30 + 20 * nestingLevel
-    } dark:border-gray-400/${20 + 20 * nestingLevel}`,
+    tr: `dark:text-gray-300 text-gray-700 border-b ${NestingLevelBorderLookup[nestingLevel]}`,
   },
-  tr: `dark:text-gray-300 text-gray-700 border-t  border-gray-400/${
-    30 + 20 * nestingLevel
-  } dark:border-gray-400/${20 + 20 * nestingLevel}`,
+  tr: `dark:text-gray-300 text-gray-700 border-t ${NestingLevelBorderLookup[nestingLevel]}`,
 });
 
 interface TableProps<T> {
@@ -113,7 +118,7 @@ interface TableProps<T> {
     setPagination: Dispatch<SetStateAction<PaginationState>>;
     totalPages?: number;
   };
-  nestingLevel?: number;
+  nestingLevel?: NestingLevel;
   numLoadingRows?: number;
   sortable?: boolean;
   child?: (props: { row: T }) => JSX.Element;
@@ -278,7 +283,7 @@ const Table = <T,>({
                       <tr>
                         <td
                           colSpan={row.getVisibleCells().length}
-                          className="px-2 md:px-4 py-2 border-t border-gray-300 dark:border-gray-700 border-dashed"
+                          className="px-2 md:px-4 pt-4 pb-2 border-t border-gray-300 dark:border-gray-700 border-dashed"
                         >
                           <ExpandedRow row={row.original} />
                         </td>

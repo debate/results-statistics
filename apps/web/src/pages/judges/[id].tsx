@@ -151,8 +151,8 @@ const Judge = () => {
             />
           }
         />
-        <JudgingHistoryTable data={data?.results} />
-        <JudgeCharts results={data?.results} />
+        <JudgingHistoryTable data={data?.results || []} />
+        <JudgeCharts results={data?.results || []} />
         <JudgeDifferentialTable data={data?.results || []} />
         <Paradigm data={data?.paradigms || []} />
       </div>
