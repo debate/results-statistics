@@ -1,11 +1,11 @@
-import React, { useEffect, useMemo, useState } from 'react'
-import { ExpandedTournamentResult } from '../tables/team/TournamentHistoryTable';
-import { Button, Card, Chart, Text } from '@shared/components';
-import { AiOutlineLineChart } from 'react-icons/ai';
-import { getDeflator } from '@src/utils/get-statistics';
-import { HiOutlineSwitchHorizontal } from 'react-icons/hi';
-import clsx from 'clsx';
-import { BiErrorCircle } from 'react-icons/bi';
+import React, { useEffect, useMemo, useState } from "react";
+import { ExpandedTournamentResult } from "../tables/team/TournamentHistoryTable";
+import { Button, Card, Chart, Text } from "@shared/components";
+import { AiOutlineLineChart } from "react-icons/ai";
+import { getDeflator } from "@src/utils/get-statistics";
+import { HiOutlineSwitchHorizontal } from "react-icons/hi";
+import clsx from "clsx";
+import { BiErrorCircle } from "react-icons/bi";
 
 interface TeamChartsProps {
   results: ExpandedTournamentResult[];
@@ -20,143 +20,167 @@ const TeamCharts = ({ results }: TeamChartsProps) => {
   }, []);
 
   const pwpPoint = useMemo(() => {
-    return results.map(r => ({
+    return results.map((r) => ({
       date: r.tournament.start * 1000,
-      pwp: Math.floor(r.prelimBallotsWon / (r.prelimBallotsLost + r.prelimBallotsWon) * 100)
-    }))
+      pwp: Math.floor(
+        (r.prelimBallotsWon / (r.prelimBallotsLost + r.prelimBallotsWon)) * 100
+      ),
+    }));
   }, [results]);
 
   const pwpCum = useMemo(() => {
     return results.map((r, idx) => {
-      const previousResults = results.slice(0, idx + 1).map(r => [r.prelimBallotsWon, r.prelimBallotsLost]);
+      const previousResults = results
+        .slice(0, idx + 1)
+        .map((r) => [r.prelimBallotsWon, r.prelimBallotsLost]);
       const pWinsSum = previousResults.reduce((p, c) => p + c[0], 0);
       const pLossesSum = previousResults.reduce((p, c) => p + c[1], 0);
 
       return {
         date: r.tournament.start * 1000,
-        pwp: Math.round(pWinsSum / (pWinsSum + pLossesSum) * 100)
-      }
-    })
+        pwp: Math.round((pWinsSum / (pWinsSum + pLossesSum)) * 100),
+      };
+    });
   }, [results]);
 
   const speaksPoint = useMemo(() => {
-    return results.map(r => {
-      const speaks = r.speaking.map(s => s.rawAvgPoints);
-      if (!speaks.length) return null;
-      return {
-        date: r.tournament.start * 1000,
-        speaks: Math.round(speaks.reduce((p, c) => p + c, 0) / speaks.length * 10)/10
-      }
-    }).filter(r => r !== null) as {date: number, speaks: number}[];
+    return results
+      .map((r) => {
+        const speaks = r.speaking.map((s) => s.rawAvgPoints);
+        if (!speaks.length) return null;
+        return {
+          date: r.tournament.start * 1000,
+          speaks:
+            Math.round(
+              (speaks.reduce((p, c) => p + c, 0) / speaks.length) * 10
+            ) / 10,
+        };
+      })
+      .filter((r) => r !== null) as { date: number; speaks: number }[];
   }, [results]);
 
   const speaksCum = useMemo(() => {
     return results.map((r, idx) => {
       const previousResults = results
         .slice(0, idx + 1)
-        .map(r => r.speaking.map(s => s.rawAvgPoints)
-        .reduce((a, b) => a + b, 0) / r.speaking.length);
+        .map(
+          (r) =>
+            r.speaking.map((s) => s.rawAvgPoints).reduce((a, b) => a + b, 0) /
+            r.speaking.length
+        );
 
       const speaksSum = previousResults.reduce((p, c) => p + c, 0);
 
       return {
         date: r.tournament.start * 1000,
-        speaks: Math.round(speaksSum / previousResults.length * 10) / 10
-      }
-    })
+        speaks: Math.round((speaksSum / previousResults.length) * 10) / 10,
+      };
+    });
   }, [results]);
 
   const prelimPoolPctlPoint = useMemo(() => {
-    return results.map(r => ({
+    return results.map((r) => ({
       date: r.tournament.start * 1000,
-      pctl: 100 - Math.round(r.prelimPos / r.prelimPoolSize * 100)
-    }))
+      pctl: 100 - Math.round((r.prelimPos / r.prelimPoolSize) * 100),
+    }));
   }, [results]);
 
   const prelimPoolPctlCum = useMemo(() => {
     return results.map((r, idx) => {
       const previousResults = results
         .slice(0, idx + 1)
-        .map(r => 100 - Math.round(r.prelimPos / r.prelimPoolSize * 100));
+        .map((r) => 100 - Math.round((r.prelimPos / r.prelimPoolSize) * 100));
 
       const pctlSum = previousResults.reduce((p, c) => p + c, 0);
 
       return {
         date: r.tournament.start * 1000,
-        pctl: Math.round(pctlSum / previousResults.length * 100) / 100
-      }
-    })
+        pctl: Math.round((pctlSum / previousResults.length) * 100) / 100,
+      };
+    });
   }, [results]);
 
   const otrPoint = useMemo(() => {
-    return results.map(r => ({
+    return results.map((r) => ({
       date: r.tournament.start * 1000,
-      otr: Math.round(r.otrComp * 100) / 100
-    }))
+      otr: Math.round(r.otrComp * 100) / 100,
+    }));
   }, [results]);
 
   const otrCum = useMemo(() => {
     return results.map((r, idx) => {
-      const previousResults = results.slice(0, idx + 1).map(r => r.otrComp);
+      const previousResults = results.slice(0, idx + 1).map((r) => r.otrComp);
       const otrSum = previousResults.reduce((p, c) => p + c, 0);
       return {
         date: r.tournament.start * 1000,
-        otr: Math.round(getDeflator(previousResults.length) * otrSum / previousResults.length * 100) / 100
-      }
-    })
+        otr:
+          Math.round(
+            ((getDeflator(previousResults.length) * otrSum) /
+              previousResults.length) *
+              100
+          ) / 100,
+      };
+    });
   }, [results]);
 
   const breakPoint = useMemo(() => {
-    return results.map(r => {
-      if (!r.tournament.hasElimRounds) {
-        return null;
-      }
+    return results
+      .map((r) => {
+        if (!r.tournament.hasElimRounds) {
+          return null;
+        }
 
-      return {
-        date: r.tournament.start * 1000,
-        break: (r.elimBallotsWon !== 0 || r.elimBallotsLost !== 0)
-          ? 1
-          : 0
-      }
-    }).filter(v => v !== null) as { date: number; break: number}[];
+        return {
+          date: r.tournament.start * 1000,
+          break: r.elimBallotsWon !== 0 || r.elimBallotsLost !== 0 ? 1 : 0,
+        };
+      })
+      .filter((v) => v !== null) as { date: number; break: number }[];
   }, [results]);
 
   const breakCum = useMemo(() => {
     return results.map((r, idx) => {
       const previousResults = results
         .slice(0, idx + 1)
-        .filter(r => r.tournament.hasElimRounds)
-        .map(r => r.elimBallotsLost !== 0 || r.elimBallotsWon !== 0);
+        .filter((r) => r.tournament.hasElimRounds)
+        .map((r) => r.elimBallotsLost !== 0 || r.elimBallotsWon !== 0);
 
-      const numBreaks = previousResults.reduce((p, c) => c ? p + 1 : p, 0);
+      const numBreaks = previousResults.reduce((p, c) => (c ? p + 1 : p), 0);
 
       return {
         date: r.tournament.start * 1000,
-        pct: Math.round(numBreaks / previousResults.length * 100)
-      }
-    })
+        pct: Math.round((numBreaks / previousResults.length) * 100),
+      };
+    });
   }, [results]);
 
   const twpPoint = useMemo(() => {
-    return results.map(r => {
-      const _twp = (r.prelimBallotsWon + (r.elimBallotsWon || 0)) / (r.prelimBallotsWon + r.prelimBallotsLost + (r.elimBallotsWon || 0) + (r.elimBallotsLost || 0)) + (r.elimBallotsWon || 0) / ((r.elimBallotsWon || 0) + (r.elimBallotsLost || 0)) * 0.1;
+    return results.map((r) => {
+      const _twp =
+        (r.prelimBallotsWon + (r.elimBallotsWon || 0)) /
+          (r.prelimBallotsWon +
+            r.prelimBallotsLost +
+            (r.elimBallotsWon || 0) +
+            (r.elimBallotsLost || 0)) +
+        (r.elimBallotsWon || r.elimBallotsLost
+          ? ((r.elimBallotsWon || 0) /
+              ((r.elimBallotsWon || 0) + (r.elimBallotsLost || 0))) *
+            0.1
+          : 0);
 
       return {
         date: r.tournament.start * 1000,
-        twp: isNaN(_twp)
-          ? 0
-          : _twp < 1
-            ? Math.round(_twp * 100)
-            : 100
-      }
-    })
+        twp: isNaN(_twp) ? 0 : _twp < 1 ? Math.round(_twp * 100) : 100,
+      };
+    });
   }, [results]);
 
   const twpCum = useMemo(() => {
     return results.map((r, idx) => {
-      const previousResults = results
-        .slice(0, idx + 1)
-        .map(r => [[r.prelimBallotsWon, r.prelimBallotsLost], [r.elimWins || 0, r.elimLosses || 0]]);
+      const previousResults = results.slice(0, idx + 1).map((r) => [
+        [r.prelimBallotsWon, r.prelimBallotsLost],
+        [r.elimWins || 0, r.elimLosses || 0],
+      ]);
 
       const sumPrelimsWon = previousResults.reduce((p, c) => p + c[0][0], 0);
       const sumPrelimsLost = previousResults.reduce((p, c) => p + c[0][1], 0);
@@ -164,29 +188,32 @@ const TeamCharts = ({ results }: TeamChartsProps) => {
       const sumElimsWon = previousResults.reduce((p, c) => p + c[1][0], 0);
       const sumElimsLost = previousResults.reduce((p, c) => p + c[1][1], 0);
 
-      const _twp = (sumPrelimsWon + sumElimsWon) / (sumPrelimsWon + sumPrelimsLost + sumElimsWon + sumElimsLost) + sumElimsWon / (sumElimsWon + sumElimsLost) * 0.1;
+      const _twp =
+        (sumPrelimsWon + sumElimsWon) /
+          (sumPrelimsWon + sumPrelimsLost + sumElimsWon + sumElimsLost) +
+        (sumElimsWon || sumElimsLost
+          ? (sumElimsWon / (sumElimsWon + sumElimsLost)) * 0.1
+          : 0);
 
       return {
         date: r.tournament.start * 1000,
-        twp: isNaN(_twp)
-          ? 0
-          : _twp < 1
-            ? Math.round(_twp * 100)
-            : 100
+        twp: isNaN(_twp) ? 0 : _twp < 1 ? Math.round(_twp * 100) : 100,
       };
-    })
+    });
   }, [results]);
 
   return (
-    <Card icon={<AiOutlineLineChart />} title="Analytics" className="relative max-w-[800px] mx-auto my-16">
+    <Card
+      icon={<AiOutlineLineChart />}
+      title="Analytics"
+      className="relative max-w-[800px] mx-auto my-16"
+    >
       <div
-        className={clsx(
-          "w-full mx-auto grid",
-          {
-            "sm:grid-cols-2 gap-4": !ready || results.length > 1,
-            "grid place-items-center h-32 md:h-96 w-full": ready && results.length < 2,
-          }
-        )}
+        className={clsx("w-full mx-auto grid", {
+          "sm:grid-cols-2 gap-4": !ready || results.length > 1,
+          "grid place-items-center h-32 md:h-96 w-full":
+            ready && results.length < 2,
+        })}
       >
         {ready && results.length > 1 && (
           <>
@@ -209,7 +236,9 @@ const TeamCharts = ({ results }: TeamChartsProps) => {
             />
             <Chart
               title="Prelim Pool Pctl."
-              data={mode === "Cumulative" ? prelimPoolPctlCum : prelimPoolPctlPoint}
+              data={
+                mode === "Cumulative" ? prelimPoolPctlCum : prelimPoolPctlPoint
+              }
               xKey="date"
               yKey="pctl"
               range={[0, 100]}
@@ -224,32 +253,28 @@ const TeamCharts = ({ results }: TeamChartsProps) => {
               yTicks={[1, 2, 3, 4, 5]}
               range={[0, 5]}
             />
-            {
-              mode === "Cumulative"
-                ? (
-                  <Chart
-                  title={"Break Pct."}
-                  data={breakCum}
-                  xKey="date"
-                  yKey={"pct"}
-                  range={[0, 100]}
-                  yTicks={[0, 25, 50, 75, 100]}
-                  isPercentage
-                  isBoolean
-                />
-              )
-                : (
-                  <Chart
-                  title={"Break (y/n)"}
-                  data={breakPoint}
-                  xKey="date"
-                  yKey={"break"}
-                  range={[0, 1]}
-                  yTicks={[0, 1]}
-                  isBoolean
-                />
-              )
-            }
+            {mode === "Cumulative" ? (
+              <Chart
+                title={"Break Pct."}
+                data={breakCum}
+                xKey="date"
+                yKey={"pct"}
+                range={[0, 100]}
+                yTicks={[0, 25, 50, 75, 100]}
+                isPercentage
+                isBoolean
+              />
+            ) : (
+              <Chart
+                title={"Break (y/n)"}
+                data={breakPoint}
+                xKey="date"
+                yKey={"break"}
+                range={[0, 1]}
+                yTicks={[0, 1]}
+                isBoolean
+              />
+            )}
             <Chart
               title="True Win Pct."
               data={mode === "Cumulative" ? twpCum : twpPoint}
@@ -261,32 +286,34 @@ const TeamCharts = ({ results }: TeamChartsProps) => {
             />
           </>
         )}
-        {!ready && [1, 2, 3, 4, 5, 6].map(i => (
-          <div key={i} className="ml-[20px] w-[280px] h-[200px] rounded-lg bg-gray-200 animate-pulse"></div>
-        ))}
-        {
-          results.length > 1 && (
-            <Button
-              icon={<HiOutlineSwitchHorizontal className='mr-2' />}
-              onClick={() => setMode(mode === "Cumulative" ? "Point" : "Cumulative")}
-              className='h-7 absolute top-0 md:top-5 right-5 !bg-transparent !text-black dark:!text-white hover:opacity-70 active:opacity-90 w-36'
-              ghost
-            >
-              <p className='w-full text-start'>{mode}</p>
-            </Button>
-          )
-        }
-        {
-          ready && results.length < 2 && (
-            <div className="flex text-center space-x-1 text-gray-600 dark:text-gray-400">
-              <BiErrorCircle size={32} />
-              <p className="mt-[2px] text-xl">Not enough history</p>
-            </div>
-          )
-        }
+        {!ready &&
+          [1, 2, 3, 4, 5, 6].map((i) => (
+            <div
+              key={i}
+              className="ml-[20px] w-[280px] h-[200px] rounded-lg bg-gray-200 animate-pulse"
+            ></div>
+          ))}
+        {results.length > 1 && (
+          <Button
+            icon={<HiOutlineSwitchHorizontal className="mr-2" />}
+            onClick={() =>
+              setMode(mode === "Cumulative" ? "Point" : "Cumulative")
+            }
+            className="h-7 absolute top-0 md:top-5 right-5 !bg-transparent !text-black dark:!text-white hover:opacity-70 active:opacity-90 w-36"
+            ghost
+          >
+            <p className="w-full text-start">{mode}</p>
+          </Button>
+        )}
+        {ready && results.length < 2 && (
+          <div className="flex text-center space-x-1 text-gray-600 dark:text-gray-400">
+            <BiErrorCircle size={32} />
+            <p className="mt-[2px] text-xl">Not enough history</p>
+          </div>
+        )}
       </div>
     </Card>
-  )
-}
+  );
+};
 
-export default TeamCharts
+export default TeamCharts;
