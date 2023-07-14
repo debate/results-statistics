@@ -54,15 +54,21 @@ const TeamSummary = (props: TeamSummaryProps) => {
           props.topicTags.length ? (
             `the following topic types: ${getStringFromList(
               props.topicTags.map((t) => t.tag)
-            )}.`
+            )}`
           ) : (
             "all topic types"
           )
         ) : (
           <Loader width={8} height={6} />
         )}
-        , they have {props.bids || <Loader width={8} height={6} />} bid
-        {(props.bids || 0) > 1 ? "s" : ""} across{" "}
+        , they have{" "}
+        {props.bids !== undefined ? (
+          props.bids
+        ) : (
+          <Loader width={8} height={6} />
+        )}{" "}
+        bid
+        {(props.bids || 2) > 1 ? "s" : ""} across{" "}
         {props.numResults || <Loader width={8} height={6} />} tournament
         {(props.numResults || 1) > 1 ? "s" : ""}, averaging{" "}
         {props.avgSpeaks?.toFixed(1) || <Loader width={8} height={6} />} speaker
