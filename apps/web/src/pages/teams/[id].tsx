@@ -20,6 +20,7 @@ import { BiLinkExternal } from "react-icons/bi";
 import { Card, Loader } from "@shared/components";
 import { HiOutlineLightBulb } from "react-icons/hi";
 import getStringFromList from "@src/utils/get-string-from-list";
+import TeamSummary from "@src/components/features/TeamSummary";
 
 const Team = () => {
   const { query, isReady, asPath, ...router } = useRouter();
@@ -211,68 +212,18 @@ const Team = () => {
           }
           subheading={data?.aliases[0]?.code}
         />
-        <Card
-          icon={<HiOutlineLightBulb />}
-          title="Summary"
-          className="relative max-w-[800px] mx-auto my-16 grid place-items-start"
-        >
-          <p className="flex flex-wrap space-x-1">
-            {data?.aliases[0]?.code || <Loader width={22} height={6} />} is the{" "}
-            {data ? (
-              "#" + data.ranking.circuitRank
-            ) : (
-              <Loader width={8} height={6} />
-            )}{" "}
-            team on the{" "}
-            {data?.circuits[0]?.name.toLowerCase() || (
-              <Loader width={14} height={6} />
-            )}{" "}
-            circuit for{" "}
-            {data ? (
-              getEnumName(data.circuits[0]?.event)
-            ) : (
-              <Loader width={14} height={6} />
-            )}{" "}
-            debate. They have{" "}
-            {data?.statistics.bids || <Loader width={8} height={6} />} bid
-            {(data?.statistics.bids || 0) > 1 ? "s" : ""} across{" "}
-            {data?.results.length || <Loader width={8} height={6} />} tournament
-            {(data?.results.length || 1) > 1 ? "s" : ""}, averaging{" "}
-            {data?.statistics.avgSpeaks.toFixed(1) || (
-              <Loader width={8} height={6} />
-            )}{" "}
-            speaker points with a true win percentage of{" "}
-            {data ? (
-              (data.statistics.tWp * 100).toFixed(1) + "%"
-            ) : (
-              <Loader width={8} height={6} />
-            )}
-            . Here are their results and statiscs for{" "}
-            {data ? (
-              data.filter.topics.length ? (
-                `the following topics: ${getStringFromList(
-                  data.filter.topics.map((t) => t.nickname)
-                )}`
-              ) : (
-                "all topics"
-              )
-            ) : (
-              <Loader width={8} height={6} />
-            )}
-            {" and "}
-            {data ? (
-              data.filter.topicTags.length ? (
-                `the following topic types: ${getStringFromList(
-                  data.filter.topicTags.map((t) => t.tag)
-                )}.`
-              ) : (
-                "all topic types."
-              )
-            ) : (
-              <Loader width={8} height={6} />
-            )}{" "}
-          </p>
-        </Card>
+        <TeamSummary
+          code={data?.aliases[0]?.code}
+          rank={data?.ranking.circuitRank}
+          circuitName={data?.circuits[0].name}
+          event={data?.circuits[0].event}
+          topics={data?.filter.topics}
+          topicTags={data?.filter.topicTags}
+          bids={data?.statistics.bids}
+          numResults={data?.results.length}
+          avgSpeaks={data?.statistics.avgSpeaks}
+          tWp={data?.statistics.tWp}
+        />
         <TournamentHistoryTable data={data?.results} />
         <TeamCharts
           results={

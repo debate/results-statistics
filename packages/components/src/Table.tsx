@@ -82,8 +82,6 @@ const sizes = {
   max: Infinity,
 };
 
-("border-gray-400 border-gray-400/90 border-gray-400/80 border-gray-400/70 border-gray-400/60 border-gray-400/50 border-gray-400/40 border-gray-400/30 border-gray-400/20 border-gray-400/10");
-
 const NestingLevelBorderLookup: {
   [k in NestingLevel]: string;
 } = {
