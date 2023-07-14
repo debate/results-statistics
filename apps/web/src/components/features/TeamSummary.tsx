@@ -72,7 +72,7 @@ const TeamSummary = (props: TeamSummaryProps) => {
         {props.numResults || <Loader width={8} height={6} />} tournament
         {(props.numResults || 1) > 1 ? "s" : ""}, averaging{" "}
         {props.avgSpeaks?.toFixed(1) || <Loader width={8} height={6} />} speaker
-        points with a true win percentage of{" "}
+        points on a true win percentage of{" "}
         {props.tWp ? (
           (props.tWp * 100).toFixed(1) + "%"
         ) : (

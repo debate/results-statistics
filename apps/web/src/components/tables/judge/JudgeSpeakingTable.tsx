@@ -1,17 +1,16 @@
 import React from "react";
 import { Table, Text } from "@shared/components";
-import {
-  ColumnDef,
-  createColumnHelper,
-  SortingState,
-} from "@tanstack/react-table";
+import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import { ExpandedJudgeRecord } from "./JudgeRecordsTable";
+import { useRouter } from "next/router";
+import _ from "lodash";
 
 export interface JudgeSpeakingTableProps {
   data: ExpandedJudgeRecord;
 }
 
 const JudgeSpeakingTable = ({ data: rawData }: JudgeSpeakingTableProps) => {
+  const router = useRouter();
   const column =
     createColumnHelper<ExpandedJudgeRecord["rounds"][0]["speaking"][0]>();
 
@@ -42,6 +41,12 @@ const JudgeSpeakingTable = ({ data: rawData }: JudgeSpeakingTableProps) => {
               }),
             ] as ColumnDef<ExpandedJudgeRecord["rounds"][0]["speaking"][0]>[],
           }}
+          onRowClick={(row) =>
+            router.push({
+              pathname: `/competitors/${row.competitorId}`,
+              query: _.omit(router.query, ["id", "topics", "topicTags"]),
+            })
+          }
           nestingLevel={2}
           sortable
         />
