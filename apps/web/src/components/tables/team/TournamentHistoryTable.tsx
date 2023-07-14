@@ -73,6 +73,7 @@ const TournamentHistoryTable = ({ data }: TournamentHistoryTableProps) => {
       icon={<BsJournalBookmark />}
       title="Tournament History"
       className="max-w-[800px] mx-auto my-16"
+      collapsible
     >
       <Table
         data={data}

@@ -176,10 +176,10 @@ const FilterModal = ({ isOpen, setIsOpen, topics }: FilterModalProps) => {
                             {selectedTopics.length}/{uniqueTopics.length} topics
                             selected.
                           </p>
-                          {/* @ts-ignore */}
                           <Combobox
                             value={selectedTopics}
                             onChange={setSelectedTopics}
+                            // @ts-ignore
                             multiple
                           >
                             <div className="relative mt-1 !max-w-96">

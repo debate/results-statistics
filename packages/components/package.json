@@ -15,6 +15,7 @@
         "dist/**"
     ],
     "dependencies": {
+        "@radix-ui/react-collapsible": "^1.0.3",
         "@tanstack/react-table": "^8.8.5",
         "@uidotdev/usehooks": "^2.0.1",
         "clsx": "^1.2.1",
@@ -22,6 +23,7 @@
         "next": "13.2.4",
         "react": "18.2.0",
         "react-dom": "18.2.0",
+        "react-icons": "^4.10.1",
         "recharts": "^2.6.2",
         "typescript": "5.0.2"
     },

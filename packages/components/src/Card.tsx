@@ -1,11 +1,19 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode, useState } from "react";
 import clsx from "clsx";
 import Text from "./Text";
+import { RiExpandUpDownFill, RiContractUpDownFill } from "react-icons/ri";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@radix-ui/react-collapsible";
 
 export interface CardProps {
   title: string;
   children: ReactNode;
   icon?: ReactNode;
+  collapsible?: boolean;
+  actionBar?: ReactNode;
   className?: string;
   theme?: string;
   [key: string]: any;
@@ -15,10 +23,15 @@ const Card = ({
   title,
   icon,
   children,
+  collapsible,
+  actionBar: ActionBar,
   className,
   theme,
   ...props
 }: CardProps) => {
+  const [open, setOpen] = useState(false);
+  const HeaderTag = collapsible ? "button" : "div";
+
   return (
     <div
       className={clsx(
@@ -27,21 +40,49 @@ const Card = ({
       )}
       {...props}
     >
-      <div className="p-1 md:p-5">
-        <Text
-          as="h3"
-          className={clsx(
-            theme || "text-luka-200 dark:text-blue-600",
-            "bold -mb-2 md:mb-2 flex items-center text-2xl sm:text-3xl"
-          )}
+      <div className="p-1 md:p-3">
+        <Collapsible
+          open={collapsible ? open : true}
+          onOpenChange={collapsible ? setOpen : undefined}
         >
-          {icon}
-          {icon && <span className="mx-1" />}
-          {title}
-        </Text>
-        <div className="flex flex-col justify-between space-y-3 mt-4">
-          {children}
-        </div>
+          <CollapsibleTrigger asChild>
+            <HeaderTag
+              className={clsx("w-full flex justify-between items-center p-1", {
+                "cursor-pointer hover:bg-gray-400/10 active:bg-gray-400/20 dark:active:bg-gray-400/20 dark:hover:bg-gray-400/10 rounded-lg":
+                  collapsible,
+              })}
+            >
+              <Text
+                as="h3"
+                className={clsx(
+                  theme || "text-luka-200 dark:text-blue-600",
+                  "bold flex items-center text-2xl sm:text-3xl"
+                )}
+              >
+                {icon}
+                {icon && <span className="mx-1" />}
+                {title}
+              </Text>
+              <div className="flex">
+                {collapsible ? (open ? ActionBar : undefined) : ActionBar}
+                {collapsible && (
+                  <div className="bg-blue-200 rounded-full p-1 mr-1">
+                    {open ? (
+                      <RiContractUpDownFill className="text-luka-200 dark:text-blue-600 w-3.5 h-3.5" />
+                    ) : (
+                      <RiExpandUpDownFill className="text-luka-200 dark:text-blue-600 w-3.5 h-3.5" />
+                    )}
+                  </div>
+                )}
+              </div>
+            </HeaderTag>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <div className="flex flex-col justify-between space-y-3 mt-4">
+              {children}
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
       </div>
     </div>
   );
