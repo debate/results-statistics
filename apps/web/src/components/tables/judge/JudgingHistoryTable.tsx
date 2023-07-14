@@ -45,6 +45,7 @@ const JudgingHistoryTable = ({ data }: JudgingHistoryTableProps) => {
       icon={<BsJournalBookmark />}
       title="Judging History"
       className="max-w-[800px] mx-auto my-16"
+      collapsible
     >
       <Table
         data={data}

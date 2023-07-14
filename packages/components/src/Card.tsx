@@ -47,10 +47,14 @@ const Card = ({
         >
           <CollapsibleTrigger asChild>
             <HeaderTag
-              className={clsx("w-full flex justify-between items-center p-1", {
-                "cursor-pointer hover:bg-gray-400/10 active:bg-gray-400/20 dark:active:bg-gray-400/20 dark:hover:bg-gray-400/10 rounded-lg":
-                  collapsible,
-              })}
+              className={clsx(
+                "w-full flex justify-between items-center p-1 group",
+                {
+                  "cursor-pointer rounded-lg": collapsible,
+                  "hover:bg-gray-400/10 active:bg-gray-400/20 dark:active:bg-gray-400/20 dark:hover:bg-gray-400/10":
+                    collapsible && !open,
+                }
+              )}
             >
               <Text
                 as="h3"
@@ -63,10 +67,12 @@ const Card = ({
                 {icon && <span className="mx-1" />}
                 {title}
               </Text>
-              <div className="flex">
-                {collapsible ? (open ? ActionBar : undefined) : ActionBar}
+              <div className="flex items-center ml-2 space-x-2">
+                <div onClick={(e) => e.stopPropagation()}>
+                  {collapsible ? (open ? ActionBar : undefined) : ActionBar}
+                </div>
                 {collapsible && (
-                  <div className="bg-blue-200 rounded-full p-1 mr-1">
+                  <div className="bg-blue-200 rounded-full p-1 mr-1 h-fit hover:opacity-75 active:opacity-100">
                     {open ? (
                       <RiContractUpDownFill className="text-luka-200 dark:text-blue-600 w-3.5 h-3.5" />
                     ) : (

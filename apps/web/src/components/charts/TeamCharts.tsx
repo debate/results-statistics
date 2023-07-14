@@ -207,6 +207,21 @@ const TeamCharts = ({ results }: TeamChartsProps) => {
       icon={<AiOutlineLineChart />}
       title="Analytics"
       className="relative max-w-[800px] mx-auto my-16"
+      actionBar={
+        results.length > 1 && (
+          <Button
+            icon={<HiOutlineSwitchHorizontal className="mr-2" />}
+            onClick={() =>
+              setMode(mode === "Cumulative" ? "Point" : "Cumulative")
+            }
+            className="h-7 !bg-transparent !text-black dark:!text-white hover:opacity-70 active:opacity-90 w-36 !m-0"
+            ghost
+          >
+            <p className="w-full text-start">{mode}</p>
+          </Button>
+        )
+      }
+      collapsible
     >
       <div
         className={clsx("w-full mx-auto grid", {
@@ -293,18 +308,6 @@ const TeamCharts = ({ results }: TeamChartsProps) => {
               className="ml-[20px] w-[280px] h-[200px] rounded-lg bg-gray-200 animate-pulse"
             ></div>
           ))}
-        {results.length > 1 && (
-          <Button
-            icon={<HiOutlineSwitchHorizontal className="mr-2" />}
-            onClick={() =>
-              setMode(mode === "Cumulative" ? "Point" : "Cumulative")
-            }
-            className="h-7 absolute top-0 md:top-5 right-5 !bg-transparent !text-black dark:!text-white hover:opacity-70 active:opacity-90 w-36"
-            ghost
-          >
-            <p className="w-full text-start">{mode}</p>
-          </Button>
-        )}
         {ready && results.length < 2 && (
           <div className="flex text-center space-x-1 text-gray-600 dark:text-gray-400">
             <BiErrorCircle size={32} />

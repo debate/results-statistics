@@ -14,19 +14,22 @@ const Paradigm = ({ data }: ParadigmProps) => {
       icon={<BsCardText />}
       title="Paradigms"
       className="relative max-w-[800px] mx-auto my-16"
+      actionBar={
+        <Select
+          className="md:!w-32"
+          options={data.map((d) => ({
+            name: new Date(d.scrapedAt * 1000).toLocaleDateString("en-us"),
+            value: d.id,
+          }))}
+          onChange={(v) =>
+            setParadigm(data.find((d) => d.id === parseInt(v)) as Paradigm)
+          }
+        />
+      }
+      collapsible
     >
-      <Select
-        className="absolute right-1 border md:right-5 top-3 md:top-6 !w-32"
-        options={data.map((d) => ({
-          name: new Date(d.scrapedAt * 1000).toLocaleDateString("en-us"),
-          value: d.id,
-        }))}
-        onChange={(v) =>
-          setParadigm(data.find((d) => d.id === parseInt(v)) as Paradigm)
-        }
-      />
       <div
-        className="prose md:max-h-[600px] md:px-4 md:overflow-y-scroll dark:prose-invert prose-base prose-headings:my-2 prose-a:text-blue-400 w-full mx-auto"
+        className="prose md:max-h-[600px] md:px-4 md:overflow-y-auto dark:prose-invert prose-base prose-headings:my-2 prose-a:text-blue-400 w-full mx-auto"
         dangerouslySetInnerHTML={{
           __html: paradigm?.html.replaceAll('style="color: blue;"', ""),
         }}
