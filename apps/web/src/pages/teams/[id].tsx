@@ -21,6 +21,7 @@ import { Card, Loader } from "@shared/components";
 import { HiOutlineLightBulb } from "react-icons/hi";
 import getStringFromList from "@src/utils/get-string-from-list";
 import TeamSummary from "@src/components/features/TeamSummary";
+import NsdBadge from "@src/components/nsd-badge";
 
 const Team = () => {
   const { query, isReady, asPath, ...router } = useRouter();
@@ -115,6 +116,7 @@ const Team = () => {
                       <BiLinkExternal className="absolute text-xs p-px md:text-sm md:p-0 top-1 -right-3 md:-right-4" />
                       {data.competitors[1].name}
                     </button>
+                    {(data.metadata as any)?.nsdAlum && <NsdBadge />}
                   </span>
                 )}
               </>

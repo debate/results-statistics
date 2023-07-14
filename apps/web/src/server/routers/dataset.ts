@@ -307,7 +307,8 @@ const datasetRouter = router({
                     }
                   },
                 }
-              }
+              },
+              metadata: true
             },
           },
           otr: true,

@@ -4,16 +4,19 @@ import { Alias } from "@shared/database";
 import { BsTrophy } from "react-icons/bs";
 import { useRouter } from "next/router";
 import { trpc } from "@src/utils/trpc";
+import { Prisma } from "@shared/database";
 import {
   ColumnDef,
   createColumnHelper,
   PaginationState,
 } from "@tanstack/react-table";
+import NsdBadge from "@src/components/nsd-badge";
 
 type LeaderboardRow = {
   team: {
     id: string;
     aliases: Alias[];
+    metadata: Prisma.JsonValue | null;
   };
   otr: number;
   statistics: {
@@ -58,7 +61,7 @@ const LeaderboardTable = ({ count }: LeaderboardTableProps) => {
       className="max-w-[800px] mx-auto my-4 md:my-8"
     >
       <Table
-        data={data}
+        data={data as LeaderboardRow[] | undefined}
         numLoadingRows={10}
         columnConfig={{
           core: [
@@ -68,7 +71,14 @@ const LeaderboardTable = ({ count }: LeaderboardTableProps) => {
             }),
             column.accessor("team.aliases", {
               header: "Team",
-              cell: (props) => props.getValue()[0].code,
+              cell: (props) => (
+                <p className="flex items-center">
+                  {props.getValue()[0].code}
+                  {(props.row.original.team.metadata as any)?.nsdAlum && (
+                    <NsdBadge />
+                  )}
+                </p>
+              ),
             }),
           ] as ColumnDef<LeaderboardRow>[],
           sm: [

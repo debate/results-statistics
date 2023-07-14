@@ -360,6 +360,7 @@ model Team {
   schools        School[]
   bids           Bid[]
   subscribers    EmailSubscriber[]
+  metadata       Json?
 
   @@map("teams")
 }
