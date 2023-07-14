@@ -262,7 +262,7 @@ const HeadToHead = () => {
         <Card
           icon={<BsLightbulb />}
           title="Prediction"
-          className="max-w-[800px] mx-auto my-16 relative"
+          className="max-w-[800px] mx-auto my-4 md:my-8 relative"
         >
           <div className="w-full px-4">
             <Button
@@ -364,7 +364,7 @@ const HeadToHead = () => {
         <Card
           icon={<GiAtomicSlashes />}
           title="Clutch Factor"
-          className="max-w-[800px] mx-auto my-16"
+          className="max-w-[800px] mx-auto my-4 md:my-8"
         >
           <HeadToHeadRoundsTable
             data={data?.team1.rounds}

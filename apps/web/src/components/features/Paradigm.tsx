@@ -13,7 +13,7 @@ const Paradigm = ({ data }: ParadigmProps) => {
     <Card
       icon={<BsCardText />}
       title="Paradigms"
-      className="relative max-w-[800px] mx-auto my-16"
+      className="relative max-w-[800px] mx-auto my-4 md:my-8"
       actionBar={
         <Select
           className="md:!w-32"

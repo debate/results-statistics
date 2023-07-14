@@ -18,6 +18,7 @@ import FilterModal from "@src/components/features/FilterModal";
 import Paradigm from "@src/components/features/Paradigm";
 import JudgeDifferentialTable from "@src/components/tables/judge/JudgeDifferentialTable";
 import CommandBar from "@src/components/features/CommandBar";
+import JudgeSummary from "@src/components/features/JudgeSummary";
 
 const Judge = () => {
   const { query, isReady, asPath } = useRouter();
@@ -48,6 +49,12 @@ const Judge = () => {
     }
   );
 
+  const numRounds = data?.results
+    ?.map(
+      (r) =>
+        (r.numAff || 0) + (r.numNeg || 0) + (r.numPro || 0) + (r.numCon || 0)
+    )
+    .reduce((a, b) => a + b, 0);
   const avgSpeaks = (
     data
       ? _.mean(
@@ -58,7 +65,7 @@ const Judge = () => {
       : NaN
   ) as number;
 
-  const avgSpeakStdDev = (
+  const avgStdSpeaks = (
     data
       ? _.mean(
           data.results
@@ -126,17 +133,7 @@ const Judge = () => {
                   description: "Judge Index",
                 },
                 {
-                  value: data
-                    ? data.results
-                        ?.map(
-                          (r) =>
-                            (r.numAff || 0) +
-                            (r.numNeg || 0) +
-                            (r.numPro || 0) +
-                            (r.numCon || 0)
-                        )
-                        .reduce((a, b) => a + b, 0)
-                    : undefined,
+                  value: data ? numRounds : undefined,
                   description: "Rounds",
                 },
                 {
@@ -144,12 +141,23 @@ const Judge = () => {
                   description: "Avg. Speaks",
                 },
                 {
-                  value: !isNaN(avgSpeakStdDev) ? avgSpeakStdDev : "--",
+                  value: !isNaN(avgStdSpeaks) ? avgStdSpeaks : "--",
                   description: "Avg. σ Speaks",
                 },
               ]}
             />
           }
+        />
+        <JudgeSummary
+          name={data?.name}
+          index={data?.index}
+          circuitName={data?.rankings[0]?.circuit.name}
+          event={data?.rankings[0]?.circuit.event}
+          topics={data?.filter.topics}
+          topicTags={data?.filter.topicTags}
+          numRounds={numRounds}
+          avgSpeaks={avgSpeaks}
+          avgStdSpeaks={avgStdSpeaks}
         />
         <JudgingHistoryTable data={data?.results || []} />
         <JudgeCharts results={data?.results || []} />

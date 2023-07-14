@@ -22,7 +22,7 @@ const TeamInfoTable = ({ aliases, schools }: TeamInfoTableProps) => {
     <Card
       icon={<AiOutlineInfoCircle />}
       title="Team Info"
-      className="max-w-[800px] mx-auto my-16"
+      className="max-w-[800px] mx-auto my-4 md:my-8"
       collapsible
     >
       <Table

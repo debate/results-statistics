@@ -67,12 +67,12 @@ const Card = ({
                 {icon && <span className="mx-1" />}
                 {title}
               </Text>
-              <div className="flex items-center ml-2 space-x-2">
+              <div className="flex items-center mx-2 space-x-2">
                 <div onClick={(e) => e.stopPropagation()}>
                   {collapsible ? (open ? ActionBar : undefined) : ActionBar}
                 </div>
                 {collapsible && (
-                  <div className="bg-blue-200 rounded-full p-1 mr-1 h-fit hover:opacity-75 active:opacity-100">
+                  <div className="bg-blue-200 rounded-full p-1 h-fit hover:opacity-75 active:opacity-100">
                     {open ? (
                       <RiContractUpDownFill className="text-luka-200 dark:text-blue-600 w-3.5 h-3.5" />
                     ) : (

@@ -47,7 +47,7 @@ const ThreatTable = ({ data, ...props }: ThreatTableProps) => {
     <Card
       icon={<FaCrosshairs />}
       title="Threat Sheet"
-      className="max-w-[800px] mx-auto my-16 relative"
+      className="max-w-[800px] mx-auto my-4 md:my-8 relative"
     >
       <SeasonSelect {...props} />
       <Text>Known Entries</Text>

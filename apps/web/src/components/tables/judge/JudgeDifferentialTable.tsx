@@ -46,7 +46,7 @@ const JudgeDifferentialTable = ({ data }: JudgeDifferentialTableProps) => {
     <Card
       icon={<LuCircuitBoard />}
       title="Topic Differential"
-      className="max-w-[800px] mx-auto my-16"
+      className="max-w-[800px] mx-auto my-4 md:my-8"
       collapsible
     >
       <Table

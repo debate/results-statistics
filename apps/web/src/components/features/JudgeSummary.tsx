@@ -1,25 +1,23 @@
 import { Card, Loader } from "@shared/components";
 import getEnumName from "@src/utils/get-enum-name";
 import getStringFromList from "@src/utils/get-string-from-list";
-import { data } from "cheerio/lib/api/attributes";
 import React from "react";
 import { HiOutlineLightBulb } from "react-icons/hi";
 import { Event, Topic, TopicTag } from "@shared/database";
 
-interface TeamSummaryProps {
-  code?: string;
-  rank?: number;
+interface JudgeSummaryProps {
+  name?: string;
+  index?: number;
   circuitName?: string;
   event?: Event;
   topics?: Topic[];
   topicTags?: TopicTag[];
-  bids?: number;
-  numResults?: number;
+  numRounds?: number;
   avgSpeaks?: number;
-  tWp?: number;
+  avgStdSpeaks?: number;
 }
 
-const TeamSummary = (props: TeamSummaryProps) => {
+const JudgeSummary = (props: JudgeSummaryProps) => {
   return (
     <Card
       icon={<HiOutlineLightBulb />}
@@ -27,8 +25,8 @@ const TeamSummary = (props: TeamSummaryProps) => {
       className="relative max-w-[800px] mx-auto my-4 md:my-8 grid place-items-start"
     >
       <p className="flex flex-wrap space-x-1 text-center">
-        {props.code || <Loader width={22} height={6} />} is the{" "}
-        {props.rank ? "#" + props.rank : <Loader width={8} height={6} />} team
+        {props.name || <Loader width={22} height={6} />} has a judge index of{" "}
+        {props.index ? props.index.toFixed(1) : <Loader width={8} height={6} />}{" "}
         on the{" "}
         {props.circuitName?.toLowerCase() || <Loader width={14} height={6} />}{" "}
         circuit for{" "}
@@ -61,27 +59,21 @@ const TeamSummary = (props: TeamSummaryProps) => {
         ) : (
           <Loader width={8} height={6} />
         )}
-        , they have{" "}
-        {props.bids !== undefined ? (
-          props.bids
+        , they give an average of{" "}
+        {props.avgSpeaks !== undefined ? (
+          props.avgSpeaks
         ) : (
           <Loader width={8} height={6} />
         )}{" "}
-        bid
-        {(props.bids || 2) > 1 ? "s" : ""} across{" "}
-        {props.numResults || <Loader width={8} height={6} />} tournament
-        {(props.numResults || 1) > 1 ? "s" : ""}, averaging{" "}
-        {props.avgSpeaks?.toFixed(1) || <Loader width={8} height={6} />} speaker
-        points on a true win percentage of{" "}
-        {props.tWp ? (
-          (props.tWp * 100).toFixed(1) + "%"
-        ) : (
-          <Loader width={8} height={6} />
-        )}
-        , with additional details below.
+        speaker point
+        {(props.avgSpeaks || 2) > 1 ? "s" : ""} with an average standard
+        deviation of {props.avgStdSpeaks || <Loader width={8} height={6} />}{" "}
+        points through {props.numRounds || <Loader width={8} height={6} />}{" "}
+        round
+        {(props.numRounds || 1) > 1 ? "s" : ""}, with additional details below.
       </p>
     </Card>
   );
 };
 
-export default TeamSummary;
+export default JudgeSummary;

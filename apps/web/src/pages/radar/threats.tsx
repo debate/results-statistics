@@ -76,7 +76,7 @@ const ThreatSheet = () => {
         <Card
           icon={<AiOutlineLineChart />}
           title="Field Analytics"
-          className="max-w-[800px] mx-auto my-16 relative"
+          className="max-w-[800px] mx-auto my-4 md:my-8 relative"
         >
           <Histogram
             data={

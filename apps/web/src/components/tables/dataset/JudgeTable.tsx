@@ -1,9 +1,13 @@
-import React, { useState } from 'react'
-import { Card, Table } from '@shared/components'
-import { TbGavel } from 'react-icons/tb'
-import { useRouter } from 'next/router';
-import { trpc } from '@src/utils/trpc';
-import { ColumnDef, createColumnHelper, PaginationState } from '@tanstack/react-table';
+import React, { useState } from "react";
+import { Card, Table } from "@shared/components";
+import { TbGavel } from "react-icons/tb";
+import { useRouter } from "next/router";
+import { trpc } from "@src/utils/trpc";
+import {
+  ColumnDef,
+  createColumnHelper,
+  PaginationState,
+} from "@tanstack/react-table";
 
 type ExpandedJudgeRanking = {
   circuitRank: number;
@@ -15,13 +19,13 @@ type ExpandedJudgeRanking = {
 };
 
 interface JudgeTableProps {
-  count: number
+  count: number;
 }
 
 const JudgeTable = ({ count }: JudgeTableProps) => {
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
-    pageSize: 10
+    pageSize: 10,
   });
   const { query, isReady, ...router } = useRouter();
   const { data } = trpc.dataset.judges.useQuery(
@@ -29,7 +33,7 @@ const JudgeTable = ({ count }: JudgeTableProps) => {
       season: parseInt(query.season as unknown as string),
       circuit: parseInt(query.circuit as unknown as string),
       limit: pagination.pageSize,
-      page: pagination.pageIndex
+      page: pagination.pageIndex,
     },
     {
       enabled: isReady,
@@ -42,50 +46,57 @@ const JudgeTable = ({ count }: JudgeTableProps) => {
   const column = createColumnHelper<ExpandedJudgeRanking>();
 
   return (
-    <Card icon={<TbGavel />} title="Judges" className="max-w-[800px] mx-auto my-16">
+    <Card
+      icon={<TbGavel />}
+      title="Judges"
+      className="max-w-[800px] mx-auto my-4 md:my-8"
+    >
       <Table
         data={data}
         numLoadingRows={10}
         columnConfig={{
           core: [
-            column.accessor('circuitRank', {
+            column.accessor("circuitRank", {
               header: "Pos.",
-              cell: props => props.cell.getValue(),
+              cell: (props) => props.cell.getValue(),
             }),
-            column.accessor('index', {
+            column.accessor("index", {
               header: "Index",
-              cell: props => props.cell.getValue().toFixed(1),
+              cell: (props) => props.cell.getValue().toFixed(1),
             }),
-            column.accessor('name', {
+            column.accessor("name", {
               header: "Name",
-              cell: props => props.cell.getValue(),
+              cell: (props) => props.cell.getValue(),
             }),
-            column.accessor('numRounds', {
+            column.accessor("numRounds", {
               header: "Rounds",
-              cell: props => Math.round(props.cell.getValue()),
+              cell: (props) => Math.round(props.cell.getValue()),
             }),
           ] as ColumnDef<ExpandedJudgeRanking>[],
           lg: [
-            column.accessor('avgSpeakerPoints', {
+            column.accessor("avgSpeakerPoints", {
               header: "Avg. Spks.",
-              cell: props => props.cell.getValue()
-                ? (props.cell.getValue() as number).toFixed(1)
-                : '--',
+              cell: (props) =>
+                props.cell.getValue()
+                  ? (props.cell.getValue() as number).toFixed(1)
+                  : "--",
             }),
-          ] as ColumnDef<ExpandedJudgeRanking>[]
+          ] as ColumnDef<ExpandedJudgeRanking>[],
         }}
         paginationConfig={{
           pagination,
           setPagination,
-          totalPages: Math.floor(count / pagination.pageSize)
+          totalPages: Math.floor(count / pagination.pageSize),
         }}
-        onRowClick={(row) => router.push({
-          pathname: `/judges/${row.judge_id}`,
-          query
-        })}
+        onRowClick={(row) =>
+          router.push({
+            pathname: `/judges/${row.judge_id}`,
+            query,
+          })
+        }
       />
     </Card>
-  )
-}
+  );
+};
 
-export default JudgeTable
+export default JudgeTable;

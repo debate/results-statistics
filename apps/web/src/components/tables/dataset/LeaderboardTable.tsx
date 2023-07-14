@@ -1,10 +1,14 @@
-import React, { useMemo, useState } from 'react'
-import { Card, Table } from '@shared/components'
-import { Alias } from '@shared/database';
-import { BsTrophy } from 'react-icons/bs'
-import { useRouter } from 'next/router';
-import { trpc } from '@src/utils/trpc';
-import { ColumnDef, createColumnHelper, PaginationState } from '@tanstack/react-table';
+import React, { useMemo, useState } from "react";
+import { Card, Table } from "@shared/components";
+import { Alias } from "@shared/database";
+import { BsTrophy } from "react-icons/bs";
+import { useRouter } from "next/router";
+import { trpc } from "@src/utils/trpc";
+import {
+  ColumnDef,
+  createColumnHelper,
+  PaginationState,
+} from "@tanstack/react-table";
 
 type LeaderboardRow = {
   team: {
@@ -18,16 +22,16 @@ type LeaderboardRow = {
     avgRawSpeaks: number;
     avgOpWpM: number;
   };
-}
+};
 
 interface LeaderboardTableProps {
-  count: number
+  count: number;
 }
 
 const LeaderboardTable = ({ count }: LeaderboardTableProps) => {
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
-    pageSize: 10
+    pageSize: 10,
   });
   const { query, isReady, ...router } = useRouter();
   const { data } = trpc.dataset.leaderboard.useQuery(
@@ -35,7 +39,7 @@ const LeaderboardTable = ({ count }: LeaderboardTableProps) => {
       season: parseInt(query.season as unknown as string),
       circuit: parseInt(query.circuit as unknown as string),
       limit: pagination.pageSize,
-      page: pagination.pageIndex
+      page: pagination.pageIndex,
     },
     {
       enabled: isReady,
@@ -48,59 +52,64 @@ const LeaderboardTable = ({ count }: LeaderboardTableProps) => {
   const column = createColumnHelper<LeaderboardRow>();
 
   return (
-    <Card icon={<BsTrophy />} title="Leaderboard" className="max-w-[800px] mx-auto my-16">
+    <Card
+      icon={<BsTrophy />}
+      title="Leaderboard"
+      className="max-w-[800px] mx-auto my-4 md:my-8"
+    >
       <Table
         data={data}
         numLoadingRows={10}
         columnConfig={{
           core: [
-            column.accessor('otr', {
+            column.accessor("otr", {
               header: "OTR",
-              cell: props => props.getValue().toFixed(3)
+              cell: (props) => props.getValue().toFixed(3),
             }),
-            column.accessor('team.aliases', {
+            column.accessor("team.aliases", {
               header: "Team",
-              cell: props => props.getValue()[0].code
-            })
+              cell: (props) => props.getValue()[0].code,
+            }),
           ] as ColumnDef<LeaderboardRow>[],
           sm: [
-            column.accessor('statistics.pWp', {
+            column.accessor("statistics.pWp", {
               header: "Prelim Win %",
-              cell: props => (props.cell.getValue() * 100).toFixed(1) + '%'
+              cell: (props) => (props.cell.getValue() * 100).toFixed(1) + "%",
             }),
-            column.accessor('statistics.tWp', {
+            column.accessor("statistics.tWp", {
               header: "True Win %",
-              cell: props => (props.cell.getValue() * 100).toFixed(1) + '%'
-            })
+              cell: (props) => (props.cell.getValue() * 100).toFixed(1) + "%",
+            }),
           ] as ColumnDef<LeaderboardRow>[],
           lg: [
-            column.accessor('statistics.avgOpWpM', {
+            column.accessor("statistics.avgOpWpM", {
               header: "Avg. OpWpM",
-              cell: props => (props.cell.getValue() * 100).toFixed(1) + '%'
+              cell: (props) => (props.cell.getValue() * 100).toFixed(1) + "%",
             }),
-            column.accessor('statistics.avgRawSpeaks', {
+            column.accessor("statistics.avgRawSpeaks", {
               header: "Avg. Spks.",
-              cell: props => props.cell.getValue() != 0
-                ? props.cell.getValue().toFixed(1)
-                : '--'
+              cell: (props) =>
+                props.cell.getValue() != 0
+                  ? props.cell.getValue().toFixed(1)
+                  : "--",
             }),
-          ] as ColumnDef<LeaderboardRow>[]
+          ] as ColumnDef<LeaderboardRow>[],
         }}
         paginationConfig={{
           pagination,
           setPagination,
-          totalPages: Math.ceil(count / pagination.pageSize)
+          totalPages: Math.ceil(count / pagination.pageSize),
         }}
-        onRowClick={
-          (row) => router.push({
+        onRowClick={(row) =>
+          router.push({
             pathname: `/teams/${row.team.id}`,
-            query
+            query,
           })
         }
         showPosition
       />
     </Card>
-  )
-}
+  );
+};
 
-export default LeaderboardTable
+export default LeaderboardTable;

@@ -206,7 +206,7 @@ const TeamCharts = ({ results }: TeamChartsProps) => {
     <Card
       icon={<AiOutlineLineChart />}
       title="Analytics"
-      className="relative max-w-[800px] mx-auto my-16"
+      className="relative max-w-[800px] mx-auto my-4 md:my-8"
       actionBar={
         results.length > 1 && (
           <Button

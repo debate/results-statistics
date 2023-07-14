@@ -75,7 +75,7 @@ const StrikeSheet = () => {
         <Card
           icon={<AiOutlineLineChart />}
           title="Pool Analytics"
-          className="max-w-[800px] mx-auto my-16 relative"
+          className="max-w-[800px] mx-auto my-4 md:my-8 relative"
         >
           <Histogram
             data={
