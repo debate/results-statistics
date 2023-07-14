@@ -116,9 +116,9 @@ const Team = () => {
                       <BiLinkExternal className="absolute text-xs p-px md:text-sm md:p-0 top-1 -right-3 md:-right-4" />
                       {data.competitors[1].name}
                     </button>
-                    {(data.metadata as any)?.nsdAlum && <NsdBadge />}
                   </span>
                 )}
+                {(data.metadata as any)?.nsdAlum && <NsdBadge />}
               </>
             ) : undefined
           }
@@ -167,7 +167,8 @@ const Team = () => {
               advanced={[
                 {
                   value: data?.results.length,
-                  description: "Tournaments",
+                  description: "Tourns.",
+                  tooltip: "Number of tournaments in view",
                 },
                 {
                   value: data
@@ -176,38 +177,48 @@ const Team = () => {
                       : "--"
                     : undefined,
                   description: "Avg. σ Speaks",
+                  tooltip:
+                    "Avg. standard deviation of team avg. speaker points",
                 },
                 {
                   value: data?.statistics.lastActive,
                   description: "Last Active",
+                  tooltip: "Time since last recorded tournament",
                 },
                 {
                   value: data ? data.statistics.inTop20Pct + "x" : undefined,
                   description: "Top 20% Seed",
+                  tooltip:
+                    "# of times being in at least the 80th pctl. of the prelim pool",
                 },
                 {
                   value: data?.statistics.avgOpWpM,
                   isPercentage: true,
                   round: 1,
                   description: "Avg. OpWpM",
+                  tooltip: "Avg. of tourn. avg. opponent prelim win %",
                 },
                 {
                   value: data?.statistics.pWp,
                   isPercentage: true,
                   round: 1,
                   description: "Prelim Win Pct.",
+                  tooltip: "% of all prelim rounds won",
                 },
                 {
                   value: data ? data.statistics.breakPct || "--" : undefined,
                   isPercentage: true,
                   round: 1,
                   description: "Break Pct.",
+                  tooltip: "% of tourns. reaching elim rounds (when possible)",
                 },
                 {
                   value: data?.statistics.tWp,
                   isPercentage: true,
                   round: 1,
                   description: "True Win Pct.",
+                  tooltip:
+                    "Win % accounting for added difficulty of elim rounds",
                 },
               ]}
             />

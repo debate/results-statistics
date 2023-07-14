@@ -12,6 +12,12 @@ import Select from "./Select";
 import Statistic from "./Statistic";
 import Table from "./Table";
 import Text from "./Text";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+  TooltipProvider,
+} from "./Tooltip";
 import { Chart, PercentageTick, CustomTick, DateTick } from "./Chart";
 import Histogram from "./Histogram";
 
@@ -34,4 +40,8 @@ export {
   CustomTick,
   DateTick,
   Histogram,
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+  TooltipProvider,
 };
