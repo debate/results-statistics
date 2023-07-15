@@ -4,6 +4,7 @@ import { getAvg } from '@src/utils/get-statistics';
 import { sortBy } from 'lodash';
 import db from '@src/services/db.service';
 import { BidTableRow } from '@src/components/tables/dataset/BidTable';
+import { SchoolTableRow } from '@src/components/tables/dataset/SchoolTable';
 
 const datasetRouter = router({
   summary: procedure
@@ -91,26 +92,26 @@ const datasetRouter = router({
           }
         }),
         // # Schools
-        prisma.school.count({
-          where: {
-            results: {
-              some: {
-                tournament: {
-                  circuits: {
-                    some: {
-                      id: {
-                        equals: input.circuit
-                      }
-                    }
-                  },
-                  seasonId: {
-                    equals: input.season
-                  }
-                }
-              }
-            }
-          }
-        }),
+        (await db).query(`
+          SELECT COUNT(*) AS totalSchools
+          FROM (
+            SELECT schools.id
+            FROM schools
+            JOIN team_tournament_results ON schools.id = team_tournament_results.school_id
+            JOIN tournaments ON team_tournament_results.tournament_id = tournaments.id
+            JOIN _CircuitToTournament ON tournaments.id = _CircuitToTournament.B
+            JOIN team_rankings ON team_rankings.team_id = team_tournament_results.team_id
+            WHERE _CircuitToTournament.A = 40
+              AND tournaments.season_id = 2023
+              AND team_rankings.circuit_id = _CircuitToTournament.A
+              AND team_rankings.season_id = tournaments.season_id
+            GROUP BY schools.id
+            HAVING COUNT(DISTINCT team_tournament_results.team_id) > 1
+          ) AS count_subquery;
+        `, [input.circuit, input.season]) as unknown as [
+          { totalSchools: number }[],
+          object[]
+        ],
         // # Bids
         prisma.bid.count({
           where: {
@@ -322,7 +323,7 @@ const datasetRouter = router({
         numTeams: data[1],
         numTournaments: data[2],
         numCompetitors: data[3],
-        numSchools: data[4],
+        numSchools: data[4][0][0].totalSchools,
         numBids: data[5],
         numGoldQualifiers: data[6][0][0].numGoldQualifiers,
         numSilverQualifiers: data[7][0][0].numSilverQualifiers,
@@ -610,97 +611,41 @@ const datasetRouter = router({
       })
     )
     .query(async ({ input, ctx }) => {
-      const { prisma } = ctx;
-      const result = await prisma.school.findMany({
-        where: {
-          results: {
-            some: {
-              tournament: {
-                circuits: {
-                  some: {
-                    id: {
-                      equals: input.circuit
-                    }
-                  }
-                },
-                seasonId: {
-                  equals: input.season
-                }
-              }
-            }
-          }
-        },
-        include: {
-          results: {
-            where: {
-              tournament: {
-                circuits: {
-                  some: {
-                    id: {
-                      equals: input.circuit
-                    }
-                  }
-                },
-                seasonId: {
-                  equals: input.season
-                }
-              }
-            },
-            select: {
-              id: true,
-            },
-          },
-          teams: {
-            where: {
-              results: {
-                some: {
-                  tournament: {
-                    circuits: {
-                      some: {
-                        id: {
-                          equals: input.circuit
-                        }
-                      }
-                    },
-                    seasonId: {
-                      equals: input.season
-                    }
-                  }
-                }
-              }
-            },
-            select: {
-              id: true
-            }
-          },
-          tournaments: {
-            where: {
-              circuits: {
-                some: {
-                  id: {
-                    equals: input.circuit
-                  }
-                }
-              },
-              seasonId: {
-                equals: input.season
-              }
-            },
-            select: {
-              id: true,
-            }
-          }
-        },
-        orderBy: {
-          results: {
-            _count: "desc"
-          }
-        },
-        skip: input.page * input.limit,
-        take: input.limit,
-      });
+      const result = await (await db).query(`
+        SELECT
+          name,
+          numTeams,
+          numEntries,
+          numTournaments,
+          avgOtr,
+          RANK() OVER (ORDER BY avgOtr DESC, numEntries DESC, numTeams DESC, numTournaments DESC) AS schoolRank
+        FROM (
+          SELECT
+            schools.name AS name,
+            COUNT(DISTINCT team_tournament_results.team_id) AS numTeams,
+            COUNT(team_tournament_results.id) AS numEntries,
+            COUNT(DISTINCT team_tournament_results.tournament_id) AS numTournaments,
+            AVG(team_rankings.otr) AS avgOtr
+          FROM schools
+          JOIN team_tournament_results ON schools.id = team_tournament_results.school_id
+          JOIN tournaments ON team_tournament_results.tournament_id = tournaments.id
+          JOIN _CircuitToTournament ON tournaments.id = _CircuitToTournament.B
+          JOIN team_rankings ON team_rankings.team_id = team_tournament_results.team_id
+          WHERE _CircuitToTournament.A = ?
+            AND tournaments.season_id = ?
+            AND team_rankings.circuit_id = _CircuitToTournament.A
+            AND team_rankings.season_id = tournaments.season_id
+          GROUP BY schools.id
+          HAVING numTeams > 1
+        ) AS subquery
+        LIMIT ?
+        OFFSET ?;
+      `, [input.circuit, input.season, input.limit,  input.page ? input.page * input.limit : 0]) as unknown as [
+        SchoolTableRow[],
+        object[]
+      ];
 
-      return result;
+      return result[0];
     }),
   bids: procedure
     .input(

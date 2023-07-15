@@ -10,16 +10,13 @@ import {
   PaginationState,
 } from "@tanstack/react-table";
 
-type SchoolTableRow = School & {
-  tournaments: {
-    id: number;
-  }[];
-  teams: {
-    id: string;
-  }[];
-  results: {
-    id: number;
-  }[];
+export type SchoolTableRow = {
+  name: string;
+  avgOtr: number;
+  numEntries: number;
+  numTeams: number;
+  numTournaments: number;
+  schoolRank: number;
 };
 
 interface SchoolTableProps {
@@ -65,19 +62,23 @@ const SchoolTable = ({ count }: SchoolTableProps) => {
               header: "Name",
               cell: (props) => props.cell.getValue(),
             }),
-            column.accessor("results", {
-              header: "Entries",
-              cell: (props) => props.cell.getValue().length,
+            column.accessor("avgOtr", {
+              header: "Avg. OTR",
+              cell: (props) => props.cell.getValue().toFixed(2),
             }),
           ] as ColumnDef<SchoolTableRow>[],
           lg: [
-            column.accessor("teams", {
-              header: "Teams",
-              cell: (props) => props.cell.getValue().length,
+            column.accessor("numEntries", {
+              header: "Entries",
+              cell: (props) => props.cell.getValue(),
             }),
-            column.accessor("tournaments", {
+            column.accessor("numTeams", {
+              header: "Teams",
+              cell: (props) => props.cell.getValue(),
+            }),
+            column.accessor("numTournaments", {
               header: "Tourns.",
-              cell: (props) => props.cell.getValue().length,
+              cell: (props) => props.cell.getValue(),
             }),
           ] as ColumnDef<SchoolTableRow>[],
         }}
