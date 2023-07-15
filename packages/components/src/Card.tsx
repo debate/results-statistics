@@ -84,7 +84,7 @@ const Card = ({
             </HeaderTag>
           </CollapsibleTrigger>
           <CollapsibleContent>
-            <div className="flex flex-col justify-between space-y-3 mt-4">
+            <div className="flex flex-col justify-between space-y-3 mt-2">
               {children}
             </div>
           </CollapsibleContent>
