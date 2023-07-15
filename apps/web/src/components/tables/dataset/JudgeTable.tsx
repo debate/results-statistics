@@ -1,29 +1,31 @@
-import React, { useMemo, useState } from 'react'
-import { Card, Table } from '@shared/components'
-import { Judge, JudgeRanking } from '@shared/database';
-import { TbGavel } from 'react-icons/tb'
-import { useRouter } from 'next/router';
-import { trpc } from '@src/utils/trpc';
-import { ColumnDef, createColumnHelper, PaginationState } from '@tanstack/react-table';
-import { getAvg } from '@src/utils/get-statistics';
+import React, { useState } from "react";
+import { Card, Table } from "@shared/components";
+import { TbGavel } from "react-icons/tb";
+import { useRouter } from "next/router";
+import { trpc } from "@src/utils/trpc";
+import {
+  ColumnDef,
+  createColumnHelper,
+  PaginationState,
+} from "@tanstack/react-table";
 
-type ExpandedJudgeRanking = (JudgeRanking & {
-  judge: Judge & {
-    records: {
-      id: number;
-      avgSpeakerPoints: number | null;
-    }[];
-  };
-});
+type ExpandedJudgeRanking = {
+  circuitRank: number;
+  judge_id: string;
+  name: string;
+  index: number;
+  numRounds: number;
+  avgSpeakerPoints: number | null;
+};
 
 interface JudgeTableProps {
-  count: number
+  count: number;
 }
 
 const JudgeTable = ({ count }: JudgeTableProps) => {
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
-    pageSize: 10
+    pageSize: 10,
   });
   const { query, isReady, ...router } = useRouter();
   const { data } = trpc.dataset.judges.useQuery(
@@ -31,62 +33,71 @@ const JudgeTable = ({ count }: JudgeTableProps) => {
       season: parseInt(query.season as unknown as string),
       circuit: parseInt(query.circuit as unknown as string),
       limit: pagination.pageSize,
-      page: pagination.pageIndex
+      page: pagination.pageIndex,
     },
     {
-      keepPreviousData: true,
-      enabled: isReady
+      enabled: isReady,
+      refetchOnWindowFocus: false,
+      refetchOnMount: false,
+      refetchOnReconnect: false,
+      staleTime: 1000 * 60 * 60 * 24,
     }
   );
   const column = createColumnHelper<ExpandedJudgeRanking>();
 
   return (
-    <Card icon={<TbGavel />} title="Judges" className="max-w-[800px] mx-auto my-16">
+    <Card
+      icon={<TbGavel />}
+      title="Judges"
+      className="max-w-[800px] mx-auto my-4 md:my-8"
+      collapsible
+    >
       <Table
         data={data}
         numLoadingRows={10}
         columnConfig={{
           core: [
-            column.accessor('index', {
-              header: "Index",
-              cell: props => props.cell.getValue().toFixed(1),
+            column.accessor("circuitRank", {
+              header: "Pos.",
+              cell: (props) => props.cell.getValue(),
             }),
-            column.accessor('judge.name', {
+            column.accessor("index", {
+              header: "Index",
+              cell: (props) => props.cell.getValue().toFixed(1),
+            }),
+            column.accessor("name", {
               header: "Name",
-              cell: props => props.cell.getValue(),
+              cell: (props) => props.cell.getValue(),
+            }),
+            column.accessor("numRounds", {
+              header: "Rounds",
+              cell: (props) => Math.round(props.cell.getValue()),
             }),
           ] as ColumnDef<ExpandedJudgeRanking>[],
           lg: [
-            column.accessor('judge.records', {
+            column.accessor("avgSpeakerPoints", {
               header: "Avg. Spks.",
-              cell: props => {
-                const points = props.row.original.judge.records
-                  .filter(r => r.avgSpeakerPoints)
-                  .map(r => r.avgSpeakerPoints) as number[];
-                return points.length
-                  ? getAvg(points).toFixed(1)
-                  : '--'
-              },
+              cell: (props) =>
+                props.cell.getValue()
+                  ? (props.cell.getValue() as number).toFixed(1)
+                  : "--",
             }),
-            column.accessor('judge.records', {
-              header: "Rounds",
-              cell: props => props.cell.getValue().length,
-            }),
-          ] as ColumnDef<ExpandedJudgeRanking>[]
+          ] as ColumnDef<ExpandedJudgeRanking>[],
         }}
         paginationConfig={{
           pagination,
           setPagination,
-          totalPages: Math.ceil(count / pagination.pageSize)
+          totalPages: Math.floor(count / pagination.pageSize),
         }}
-        onRowClick={(row) => router.push({
-          pathname: `/judges/${row.judge.id}`,
-          query
-        })}
-        showPosition
+        onRowClick={(row) =>
+          router.push({
+            pathname: `/judges/${row.judge_id}`,
+            query,
+          })
+        }
       />
     </Card>
-  )
-}
+  );
+};
 
-export default JudgeTable
+export default JudgeTable;

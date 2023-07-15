@@ -1,11 +1,11 @@
-import React from 'react'
-import { BsJournalBookmark } from 'react-icons/bs'
-import { Table, Card } from '@shared/components'
-import { ColumnDef, createColumnHelper } from '@tanstack/react-table'
-import { Alias, Circuit, Season } from '@shared/database';
-import { useRouter } from 'next/router';
-import CircuitDetailsTable from './CircuitDetailsTable';
-import { omit } from 'lodash';
+import React from "react";
+import { BsJournalBookmark } from "react-icons/bs";
+import { Table, Card } from "@shared/components";
+import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
+import { Alias, Circuit, Season } from "@shared/database";
+import { useRouter } from "next/router";
+import CircuitDetailsTable from "./CircuitDetailsTable";
+import { omit } from "lodash";
 
 export interface ExpandedTeam {
   id: string;
@@ -28,36 +28,44 @@ const CompetitorHistoryTable = ({ data }: CompetitorHistoryTableProps) => {
   const { query, ...router } = useRouter();
 
   return (
-    <Card icon={<BsJournalBookmark />} title="Competitive History" className="max-w-[800px] mx-auto my-16">
+    <Card
+      icon={<BsJournalBookmark />}
+      title="Competitive History"
+      className="max-w-[800px] mx-auto my-4 md:my-8"
+    >
       <Table
         data={data}
         numLoadingRows={5}
         columnConfig={{
           core: [
-            column.accessor('aliases', {
+            column.accessor("aliases", {
               header: "Code",
-              cell: props => props.cell.getValue()[0].code
+              cell: (props) => props.cell.getValue()[0].code,
             }),
-            column.accessor('_count.results', {
+            column.accessor("_count.results", {
               header: "# Tourns.",
-              cell: props => props.cell.getValue()
+              cell: (props) => props.cell.getValue(),
             }),
           ] as ColumnDef<ExpandedTeam>[],
           md: [
-            column.accessor('circuits', {
+            column.accessor("circuits", {
               header: "Circuits",
-              cell: props => <CircuitDetailsTable data={props.cell.getValue()} />
+              cell: (props) => (
+                <CircuitDetailsTable data={props.cell.getValue()} />
+              ),
             }),
           ] as ColumnDef<ExpandedTeam>[],
         }}
-        onRowClick={({ id }) => router.push({
-          pathname: `/teams/${id}`,
-          query: omit(query, 'id')
-        })}
+        onRowClick={({ id }) =>
+          router.push({
+            pathname: `/teams/${id}`,
+            query: omit(query, "id"),
+          })
+        }
         sortable
       />
     </Card>
-  )
-}
+  );
+};
 
-export default CompetitorHistoryTable
+export default CompetitorHistoryTable;

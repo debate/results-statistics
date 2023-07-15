@@ -2,6 +2,9 @@ import { z } from 'zod';
 import { procedure, router } from '../trpc';
 import { getAvg } from '@src/utils/get-statistics';
 import { sortBy } from 'lodash';
+import db from '@src/services/db.service';
+import { BidTableRow } from '@src/components/tables/dataset/BidTable';
+import { SchoolTableRow } from '@src/components/tables/dataset/SchoolTable';
 
 const datasetRouter = router({
   summary: procedure
@@ -89,26 +92,26 @@ const datasetRouter = router({
           }
         }),
         // # Schools
-        prisma.school.count({
-          where: {
-            results: {
-              some: {
-                tournament: {
-                  circuits: {
-                    some: {
-                      id: {
-                        equals: input.circuit
-                      }
-                    }
-                  },
-                  seasonId: {
-                    equals: input.season
-                  }
-                }
-              }
-            }
-          }
-        }),
+        (await db).query(`
+          SELECT COUNT(*) AS totalSchools
+          FROM (
+            SELECT schools.id
+            FROM schools
+            JOIN team_tournament_results ON schools.id = team_tournament_results.school_id
+            JOIN tournaments ON team_tournament_results.tournament_id = tournaments.id
+            JOIN _CircuitToTournament ON tournaments.id = _CircuitToTournament.B
+            JOIN team_rankings ON team_rankings.team_id = team_tournament_results.team_id
+            WHERE _CircuitToTournament.A = 40
+              AND tournaments.season_id = 2023
+              AND team_rankings.circuit_id = _CircuitToTournament.A
+              AND team_rankings.season_id = tournaments.season_id
+            GROUP BY schools.id
+            HAVING COUNT(DISTINCT team_tournament_results.team_id) > 1
+          ) AS count_subquery;
+        `, [input.circuit, input.season]) as unknown as [
+          { totalSchools: number }[],
+          object[]
+        ],
         // # Bids
         prisma.bid.count({
           where: {
@@ -130,6 +133,108 @@ const datasetRouter = router({
             }
           }
         }),
+        // # Gold Qualifiers
+        (await db).query(`
+          SELECT COUNT(*) AS numGoldQualifiers
+          FROM (
+            SELECT
+              fullBids.team_id,
+              fullBids.num AS full_num,
+              partialBids.num AS partial_num,
+              a.code AS code
+            FROM (
+              SELECT
+                b.team_id,
+                COUNT(*) AS num
+              FROM bids b
+              INNER JOIN team_tournament_results ttr ON b.result_id = ttr.id
+              INNER JOIN tournaments t ON t.id = ttr.tournament_id
+              INNER JOIN _CircuitToTournament ctt ON t.id = ctt.B
+              WHERE
+                ctt.A = 40 AND
+                t.season_id = 2023 AND
+                b.value = 'Full'
+              GROUP BY b.team_id
+            ) fullBids
+            INNER JOIN (
+              SELECT
+                b.team_id,
+                COUNT(*) AS num
+              FROM bids b
+              INNER JOIN team_tournament_results ttr ON b.result_id = ttr.id
+              INNER JOIN tournaments t ON t.id = ttr.tournament_id
+              INNER JOIN _CircuitToTournament ctt ON t.id = ctt.B
+              WHERE
+                ctt.A = 40 AND
+                t.season_id = 2023 AND
+                b.value = 'Partial'
+              GROUP BY b.team_id
+            ) partialBids ON fullBids.team_id = partialBids.team_id
+            INNER JOIN (
+              SELECT team_id, MIN(code) AS code
+              FROM aliases
+              GROUP BY team_id
+            ) a ON fullBids.team_id = a.team_id
+            WHERE fullBids.num >= 2
+            GROUP BY fullBids.team_id, partialBids.num, fullBids.num, a.code
+          ) AS subquery;
+        `) as unknown as [
+          {
+            numGoldQualifiers: number
+          }[],
+          object[]
+        ],
+        // # Silver Qualifiers
+        (await db).query(`
+          SELECT COUNT(*) AS numSilverQualifiers
+          FROM (
+            SELECT
+              fullBids.team_id,
+              fullBids.num AS full_num,
+              partialBids.num AS partial_num,
+              a.code AS code
+            FROM (
+              SELECT
+                b.team_id,
+                COUNT(*) AS num
+              FROM bids b
+              INNER JOIN team_tournament_results ttr ON b.result_id = ttr.id
+              INNER JOIN tournaments t ON t.id = ttr.tournament_id
+              INNER JOIN _CircuitToTournament ctt ON t.id = ctt.B
+              WHERE
+                ctt.A = 40 AND
+                t.season_id = 2023 AND
+                b.value = 'Full'
+              GROUP BY b.team_id
+            ) fullBids
+            INNER JOIN (
+              SELECT
+                b.team_id,
+                COUNT(*) AS num
+              FROM bids b
+              INNER JOIN team_tournament_results ttr ON b.result_id = ttr.id
+              INNER JOIN tournaments t ON t.id = ttr.tournament_id
+              INNER JOIN _CircuitToTournament ctt ON t.id = ctt.B
+              WHERE
+                ctt.A = 40 AND
+                t.season_id = 2023 AND
+                b.value = 'Partial'
+              GROUP BY b.team_id
+            ) partialBids ON fullBids.team_id = partialBids.team_id
+            INNER JOIN (
+              SELECT team_id, MIN(code) AS code
+              FROM aliases
+              GROUP BY team_id
+            ) a ON fullBids.team_id = a.team_id
+            WHERE fullBids.num < 2 AND partialBids.num > 0
+            GROUP BY fullBids.team_id, partialBids.num, fullBids.num, a.code
+          ) AS subquery;
+        `) as unknown as [
+          {
+            numSilverQualifiers: number
+          }[],
+          object[]
+        ],
         // # Judges
         prisma.judge.count({
           where: {
@@ -150,7 +255,67 @@ const datasetRouter = router({
               }
             }
           }
-        })
+        }),
+        // # Speak Stats
+        prisma.tournamentSpeakerResult.findMany({
+          where: {
+            result: {
+              tournament: {
+                circuits: {
+                  some: {
+                    id: input.circuit
+                  }
+                },
+                seasonId: input.season
+              }
+            },
+          },
+          select: {
+            stdDevPoints: true,
+            rawAvgPoints: true,
+          }
+        }),
+        // Squirrel / Screw Stats
+        prisma.judgeTournamentResult.findMany({
+          where: {
+            tournament: {
+              circuits: {
+                some: {
+                  id: input.circuit
+                }
+              },
+              seasonId: input.season
+            }
+          },
+          select: {
+            numPrelimScrews: true,
+            numSquirrels: true,
+            numAff: true,
+            numPro: true,
+            numNeg: true,
+            numCon: true,
+          }
+        }),
+        // OTR Chart
+        prisma.teamRanking.findMany({
+          where: {
+            circuitId: input.circuit,
+            seasonId: input.season
+          },
+          select: {
+            otr: true
+          }
+        }),
+        // Index Chart
+        prisma.judgeRanking.findMany({
+          where: {
+            circuitId: input.circuit,
+            seasonId: input.season
+          },
+          select: {
+            index: true
+          }
+        }),
       ]);
 
       return {
@@ -158,9 +323,17 @@ const datasetRouter = router({
         numTeams: data[1],
         numTournaments: data[2],
         numCompetitors: data[3],
-        numSchools: data[4],
+        numSchools: data[4][0][0].totalSchools,
         numBids: data[5],
-        numJudges: data[6],
+        numGoldQualifiers: data[6][0][0].numGoldQualifiers,
+        numSilverQualifiers: data[7][0][0].numSilverQualifiers,
+        numJudges: data[8],
+        chartData: {
+          speaking: data[9],
+          judge: data[10],
+          otr: data[11],
+          index: data[12]
+        }
       };
     }),
   leaderboard: procedure
@@ -202,7 +375,8 @@ const datasetRouter = router({
                     }
                   },
                 }
-              }
+              },
+              metadata: true
             },
           },
           otr: true,
@@ -374,66 +548,58 @@ const datasetRouter = router({
         limit: z.number()
       })
     )
-    .query(async ({ input, ctx }) => {
-      const { prisma } = ctx;
-      const result = await prisma.judgeRanking.findMany({
-        where: {
-          circuit: {
-            id: {
-              equals: input.circuit
-            }
-          },
-          season: {
-            id: {
-              equals: input.season
-            }
-          }
-        },
-        include: {
-          judge: {
-            include: {
-              records: {
-                where: {
-                  tournament: {
-                    circuits: {
-                      some: {
-                        id: {
-                          equals: input.circuit
-                        }
-                      }
-                    },
-                    season: {
-                      id: {
-                        equals: input.season
-                      }
-                    }
-                  }
-                },
-                select: {
-                  id: true,
-                  avgSpeakerPoints: true
-                }
-              },
-            }
-          },
-        },
-        orderBy: [
-          {
-            index: "desc"
-          },
-          {
-            judge: {
-              records: {
-                _count: "desc"
-              }
-            }
-          }
-        ],
-        skip: input.page * input.limit,
-        take: input.limit
-      })
+    .query(async ({ input }) => {
+      const result = await (await db).query(`
+        SELECT
+          RANK() OVER (ORDER BY \`index\` DESC, t.numRounds DESC) AS circuitRank,
+          *
+        FROM (
+          SELECT DISTINCT
+            judge_rankings.judge_id,
+            judges.name,
+            judge_rankings.\`index\`,
+            t.numRounds,
+            t.avgSpeakerPoints
+          FROM judge_rankings
+          INNER JOIN judges ON judge_rankings.judge_id = judges.id
+          INNER JOIN (
+            SELECT
+              judgeId,
+              COUNT(*) / 2 as numRounds,
+              AVG(jr.avgSpeakerPoints) as avgSpeakerPoints
+            FROM _JudgeRecordToRound jrtr
+            INNER JOIN judge_records jr ON jrtr.A = jr.id
+            INNER JOIN tournaments t ON jr.tournamentId = t.id
+            WHERE
+              t.id IN (
+                SELECT ctt.B
+                FROM _CircuitToTournament ctt
+                WHERE ctt.A = ?
+              ) AND
+              t.season_id = ?
+            GROUP BY judgeId
+          ) as t ON judge_rankings.judge_id = t.judgeId
+          WHERE
+            judge_rankings.circuit_id = ? AND
+            judge_rankings.season_id = ?
+        ) t
+        ORDER BY circuitRank
+        LIMIT ?
+        OFFSET ?;
+      `,
+      [input.circuit, input.season, input.circuit, input.season, input.limit, input.page ? input.page * input.limit : 0]) as unknown as [
+        {
+          circuitRank: number;
+          judge_id: string;
+          name: string;
+          index: number;
+          numRounds: number;
+          avgSpeakerPoints: number | null;
+        }[],
+        object[]
+      ];
 
-      return result;
+      return result[0];
     }),
   schools: procedure
     .input(
@@ -445,174 +611,103 @@ const datasetRouter = router({
       })
     )
     .query(async ({ input, ctx }) => {
-      const { prisma } = ctx;
-      const result = await prisma.school.findMany({
-        where: {
-          results: {
-            some: {
-              tournament: {
-                circuits: {
-                  some: {
-                    id: {
-                      equals: input.circuit
-                    }
-                  }
-                },
-                seasonId: {
-                  equals: input.season
-                }
-              }
-            }
-          }
-        },
-        include: {
-          results: {
-            where: {
-              tournament: {
-                circuits: {
-                  some: {
-                    id: {
-                      equals: input.circuit
-                    }
-                  }
-                },
-                seasonId: {
-                  equals: input.season
-                }
-              }
-            },
-            select: {
-              id: true,
-            },
-          },
-          teams: {
-            where: {
-              results: {
-                some: {
-                  tournament: {
-                    circuits: {
-                      some: {
-                        id: {
-                          equals: input.circuit
-                        }
-                      }
-                    },
-                    seasonId: {
-                      equals: input.season
-                    }
-                  }
-                }
-              }
-            },
-            select: {
-              id: true
-            }
-          },
-          tournaments: {
-            where: {
-              circuits: {
-                some: {
-                  id: {
-                    equals: input.circuit
-                  }
-                }
-              },
-              seasonId: {
-                equals: input.season
-              }
-            },
-            select: {
-              id: true,
-            }
-          }
-        },
-        orderBy: {
-          results: {
-            _count: "desc"
-          }
-        },
-        skip: input.page * input.limit,
-        take: input.limit,
-      });
+      const result = await (await db).query(`
+        SELECT
+          name,
+          numTeams,
+          numEntries,
+          numTournaments,
+          avgOtr,
+          RANK() OVER (ORDER BY avgOtr DESC, numEntries DESC, numTeams DESC, numTournaments DESC) AS schoolRank
+        FROM (
+          SELECT
+            schools.name AS name,
+            COUNT(DISTINCT team_tournament_results.team_id) AS numTeams,
+            COUNT(team_tournament_results.id) AS numEntries,
+            COUNT(DISTINCT team_tournament_results.tournament_id) AS numTournaments,
+            AVG(team_rankings.otr) AS avgOtr
+          FROM schools
+          JOIN team_tournament_results ON schools.id = team_tournament_results.school_id
+          JOIN tournaments ON team_tournament_results.tournament_id = tournaments.id
+          JOIN _CircuitToTournament ON tournaments.id = _CircuitToTournament.B
+          JOIN team_rankings ON team_rankings.team_id = team_tournament_results.team_id
+          WHERE _CircuitToTournament.A = ?
+            AND tournaments.season_id = ?
+            AND team_rankings.circuit_id = _CircuitToTournament.A
+            AND team_rankings.season_id = tournaments.season_id
+          GROUP BY schools.id
+          HAVING numTeams > 1
+        ) AS subquery
+        LIMIT ?
+        OFFSET ?;
+      `, [input.circuit, input.season, input.limit,  input.page ? input.page * input.limit : 0]) as unknown as [
+        SchoolTableRow[],
+        object[]
+      ];
 
-      return result;
+      return result[0];
     }),
   bids: procedure
     .input(
       z.object({
         circuit: z.number(),
         season: z.number(),
+        page: z.number(),
+        limit: z.number()
       })
     )
-    .query(async ({ input, ctx }) => {
-      const { prisma } = ctx;
-      let groups = await prisma.bid.groupBy({
-        by: ['teamId', 'value'],
-        where: {
-          result: {
-            tournament: {
-              circuits: {
-                some: {
-                  id: {
-                    equals: input.circuit
-                  }
-                }
-              },
-              season: {
-                id: {
-                  equals: input.season
-                }
-              }
-            }
-          }
-        },
-        _count: {
-          value: true
-        },
-      });
+    .query(async ({ input }) => {
+      const result = await (await db).query(`
+        SELECT
+          fullBids.team_id as teamId,
+          fullBids.num AS numFull,
+          partialBids.num AS numPartial,
+          a.code AS code,
+          RANK() OVER (ORDER BY fullBids.num DESC, partialBids.num DESC) as bidRank
+        FROM (
+          SELECT
+            b.team_id,
+            COUNT(*) AS num
+          FROM bids b
+          INNER JOIN team_tournament_results ttr ON b.result_id = ttr.id
+          INNER JOIN tournaments t ON t.id = ttr.tournament_id
+          INNER JOIN _CircuitToTournament ctt ON t.id = ctt.B
+          WHERE
+            ctt.A = ? AND
+            t.season_id = ? AND
+            b.value = 'Full'
+          GROUP BY b.team_id
+        ) fullBids
+        INNER JOIN (
+          SELECT
+            b.team_id,
+            COUNT(*) AS num
+          FROM bids b
+          INNER JOIN team_tournament_results ttr ON b.result_id = ttr.id
+          INNER JOIN tournaments t ON t.id = ttr.tournament_id
+          INNER JOIN _CircuitToTournament ctt ON t.id = ctt.B
+          WHERE
+            ctt.A = ? AND
+            t.season_id = ? AND
+            b.value = 'Partial'
+          GROUP BY b.team_id
+        ) partialBids ON fullBids.team_id = partialBids.team_id
+        INNER JOIN (
+          SELECT team_id, MIN(code) AS code
+          FROM aliases
+          GROUP BY team_id
+        ) a ON fullBids.team_id = a.team_id
+        GROUP BY fullBids.team_id, partialBids.num, fullBids.num, a.code
+        ORDER BY numFull DESC, numPartial DESC
+        LIMIT ?
+        OFFSET ?;
+      `,
+      [input.circuit, input.season, input.circuit, input.season, input.limit, input.page ? input.page * input.limit : 0]) as unknown as [
+        BidTableRow[],
+        object[]
+      ];
 
-      let lookup: {
-        [key: string]: {
-          fullBids: number;
-          partialBids: number;
-        }
-      } = {};
-
-      groups.forEach(group => {
-        let id = group['teamId'];
-        if (!lookup[id]) lookup[id] = {
-          fullBids: 0,
-          partialBids: 0,
-        };
-        if (group['value'] === 'Full') lookup[id]['fullBids'] += group._count.value;
-        else lookup[id]['partialBids'] += group._count.value;
-      });
-
-      let results: {
-        code: string;
-        teamId: string;
-        fullBids: number;
-        partialBids: number;
-      }[] = [];
-
-      for (const [teamId, data] of Object.entries(lookup)) {
-        const code = (await prisma.alias.findFirst({
-          where: {
-            teamId
-          },
-          select: {
-            code: true
-          }
-        }))!['code'];
-
-        results.push({
-          code,
-          teamId,
-          ...data
-        });
-      };
-
-      return sortBy(results, ['fullBids', 'partialBids']).reverse();
+      return result[0];
     })
 });
 

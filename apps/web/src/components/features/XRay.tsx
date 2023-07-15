@@ -1,12 +1,30 @@
-import React, { ChangeEvent, FormEvent, useCallback, useEffect, useRef, useState } from 'react'
-import { Text, Button, Input, Group, Card, Select, Label } from '@shared/components'
-import { Event } from '@shared/database'
-import { useRouter } from 'next/router'
-import { trpc } from '@src/utils/trpc'
-import { Formik, FormikProps } from 'formik'
-import * as Yup from 'yup'
-import TeamCombobox, { TeamComboboxValue } from './TeamCombobox'
-import { RiBodyScanLine } from 'react-icons/ri'
+import React, {
+  ChangeEvent,
+  FormEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import {
+  Text,
+  Button,
+  Input,
+  Group,
+  Card,
+  Select,
+  Label,
+} from "@shared/components";
+import { Event, Judge } from "@shared/database";
+import { useRouter } from "next/router";
+import { trpc } from "@src/utils/trpc";
+import { Formik, FormikProps } from "formik";
+import * as Yup from "yup";
+import TeamCombobox, { TeamComboboxValue } from "./TeamCombobox";
+import { RiBodyScanLine } from "react-icons/ri";
+import JudgeCombobox, { JudgeComboboxValue } from "./JudgeCombobox";
+import { BiX } from "react-icons/bi";
+import clsx from "clsx";
 
 interface Option {
   name: string;
@@ -20,16 +38,18 @@ interface FormOptions {
 
 interface RefreshOptions {
   event?: Event;
-  circuit?: number
-};
+  circuit?: number;
+}
 
 const XRay = () => {
   const router = useRouter();
-  const formikRef = useRef<FormikProps<{
-    event: string,
-    circuit: number,
-    season: number,
-  }>>(null);
+  const formikRef = useRef<
+    FormikProps<{
+      event: string;
+      circuit: number;
+      season: number;
+    }>
+  >(null);
   const { data } = trpc.feature.compass.useQuery(
     {},
     {
@@ -41,48 +61,64 @@ const XRay = () => {
   );
   const [formOptions, setFormOptions] = useState<FormOptions>({
     circuits: [],
-    seasons: []
+    seasons: [],
   });
   const [team1Value, setTeam1Value] = useState<TeamComboboxValue | undefined>();
   const [team2Value, setTeam2Value] = useState<TeamComboboxValue | undefined>();
+  const [selectedJudges, setSelectedJudges] = useState<JudgeComboboxValue[]>(
+    []
+  );
+  const [judgeValue, setJudgeValue] = useState<
+    JudgeComboboxValue | undefined
+  >();
 
-  const refreshOptions = useCallback(({ event, circuit }: RefreshOptions) => {
-    if (!data || !formikRef.current) return;
+  const refreshOptions = useCallback(
+    ({ event, circuit }: RefreshOptions) => {
+      if (!data || !formikRef.current) return;
 
-    const { setFieldValue, values } = formikRef.current;
+      const { setFieldValue, values } = formikRef.current;
 
-    // @ts-ignore
-    const { event: _event, circuit: _circuit } = values;
+      // @ts-ignore
+      const { event: _event, circuit: _circuit } = values;
 
-    const eventData = data[event || _event as Event];
+      const eventData = data[event || (_event as Event)];
 
-    const circuits = eventData
-      .map(circuit => ({ name: circuit.name, value: circuit.id }));
-
-    const seasons = (
-      event === _event
-        ? eventData
-          .filter(({ id }) => id === (circuit || _circuit))[0]
-          .seasons
-        : eventData[0].seasons
-    )
-      .map(season => ({
-        name: season.id.toString(),
-        value: season.id
+      const circuits = eventData.map((circuit) => ({
+        name: circuit.name,
+        value: circuit.id,
       }));
 
-    setFormOptions({
-      circuits,
-      seasons
-    });
+      const seasons = (
+        event === _event
+          ? eventData.filter(({ id }) => id === (circuit || _circuit))[0]
+              .seasons
+          : eventData[0].seasons
+      ).map((season) => ({
+        name: season.id.toString(),
+        value: season.id,
+      }));
 
-    if (event && event !== _event) {
-      setFieldValue('circuit', circuits[0].value);
+      setFormOptions({
+        circuits,
+        seasons,
+      });
+
+      if (event && event !== _event) {
+        setFieldValue("circuit", circuits[0].value);
+      }
+      if (circuit && circuit !== _circuit) {
+        setFieldValue("season", seasons[0].value);
+      }
+    },
+    [data]
+  );
+
+  useEffect(() => {
+    if (judgeValue) {
+      setSelectedJudges([...selectedJudges, judgeValue]);
+      setJudgeValue(undefined);
     }
-    if (circuit && circuit !== _circuit) {
-      setFieldValue('season', seasons[0].value);
-    }
-  }, [data]);
+  }, [judgeValue, selectedJudges]);
 
   useEffect(() => {
     refreshOptions({});
@@ -93,7 +129,14 @@ const XRay = () => {
       setTeam1Value(undefined);
       setTeam2Value(undefined);
     }
-  }
+  };
+
+  const removeSelectedJudge = useCallback(
+    (id: string) => {
+      setSelectedJudges(selectedJudges.filter((judge) => judge.id !== id));
+    },
+    [selectedJudges]
+  );
 
   const TeamSelection = useCallback(() => {
     const formik = formikRef.current;
@@ -117,12 +160,12 @@ const XRay = () => {
           setSelected={setTeam2Value}
         />
       </>
-    )
-  }, [team1Value, team2Value])
+    );
+  }, [team1Value, team2Value]);
 
   return (
     <Card
-    icon={<RiBodyScanLine />}
+      icon={<RiBodyScanLine />}
       title="X-Ray"
       theme="text-blue-400"
       className="min-w-full md:min-w-[300px] max-w-[800px] m-10 mx-auto bg-sky-100 dark:bg-black shadow-2xl shadow-sky-400/70 dark:shadow-blue-400/50 p-2"
@@ -130,95 +173,139 @@ const XRay = () => {
       <Formik
         innerRef={formikRef}
         initialValues={{
-          event: 'PublicForum',
+          event: "PublicForum",
           circuit: 40,
           season: 2023,
         }}
-        validationSchema={
-          Yup.object().shape({
-            event: Yup
-              .string()
-              .required("An event is required."),
-            circuit: Yup
-              .number()
-              .required("A circuit is required."),
-            season: Yup
-              .number()
-              .required("A season is required."),
-          })
-        }
+        validationSchema={Yup.object().shape({
+          event: Yup.string().required("An event is required."),
+          circuit: Yup.number().required("A circuit is required."),
+          season: Yup.number().required("A season is required."),
+        })}
         onSubmit={async (values) => {
           if (!team1Value || !team2Value) return;
           router.push({
-            pathname: '/x-ray/head-to-head',
+            pathname: "/x-ray/head-to-head",
             query: {
               ...values,
               team1: team1Value.teamId,
-              team2: team2Value.teamId
-            }
-          })
+              team2: team2Value.teamId,
+              judges: selectedJudges.map((judge) => judge.id).join(","),
+            },
+          });
         }}
       >
-        {
-          (props) => (
-            <form onSubmit={props.handleSubmit} className="space-y-2" onChange={handleChange}>
-              <Group character="1" legend="Select a dataset" className="flex flex-col items-center space-y-3 w-full">
-                <div className="flex flex-col space-y-3 px-3 sm:flex-row sm:space-x-3 sm:space-y-0 sm:justify-around w-full">
-                  <Select
-                    name="event"
-                    options={
-                      data
-                        ? Object.keys(data).map(event => ({
-                          name: (event.match(/[A-Z][a-z]+|[0-9]+/g) as string[]).join(" "),
-                          value: event
+        {(props) => (
+          <form
+            onSubmit={props.handleSubmit}
+            className="space-y-2"
+            onChange={handleChange}
+          >
+            <Group
+              character="1"
+              legend="Select a dataset"
+              className="flex flex-col items-center space-y-3 w-full"
+            >
+              <div className="flex flex-col space-y-3 px-3 sm:flex-row sm:space-x-3 sm:space-y-0 sm:justify-around w-full">
+                <Select
+                  name="event"
+                  options={
+                    data
+                      ? Object.keys(data).map((event) => ({
+                          name: (
+                            event.match(/[A-Z][a-z]+|[0-9]+/g) as string[]
+                          ).join(" "),
+                          value: event,
                         }))
-                        : []
-                    }
-                    value={props.values.event}
-                    handleChange={(e: ChangeEvent<any>) => {
-                      props.handleChange(e);
-                      refreshOptions({ event: e.target.value });
-                    }}
-                    label={<Label character="a">Event</Label>}
-                  />
-                  <Select
-                    name="circuit"
-                    options={formOptions.circuits}
-                    value={props.values.circuit}
-                    handleChange={(e: ChangeEvent<any>) => {
-                      props.handleChange(e);
-                      refreshOptions({ circuit: parseInt(e.target.value) });
-                    }}
-                    label={<Label character="b">Circuit</Label>}
-                  />
-                  <Select
-                    name="season"
-                    options={formOptions.seasons}
-                    value={props.values.season}
-                    handleChange={props.handleChange}
-                    label={<Label character="c">Season</Label>}
-                  />
-                </div>
-              </Group>
-              <Group character="2" legend="Choose Teams" className="grid sm:grid-cols-2 gap-2 sm:gap-4 w-full md:w-fit px-4 md:px-0 sm:mx-auto">
-                <TeamSelection />
-              </Group>
-              <Group character="3" legend="Get your results" className="flex justify-center w-full">
-                <Button
-                  type="submit"
-                  _type="primary"
-                  className="w-64 text-sm !mt-0"
-                  disabled={!team1Value || !team2Value || team1Value.teamId === team2Value.teamId}
-                >
-                  View prediction
-                </Button>
-              </Group>
-            </form>
-          )
-        }
+                      : []
+                  }
+                  value={props.values.event}
+                  handleChange={(e: ChangeEvent<any>) => {
+                    props.handleChange(e);
+                    refreshOptions({ event: e.target.value });
+                  }}
+                  label={<Label character="a">Event</Label>}
+                />
+                <Select
+                  name="circuit"
+                  options={formOptions.circuits}
+                  value={props.values.circuit}
+                  handleChange={(e: ChangeEvent<any>) => {
+                    props.handleChange(e);
+                    refreshOptions({ circuit: parseInt(e.target.value) });
+                  }}
+                  label={<Label character="b">Circuit</Label>}
+                />
+                <Select
+                  name="season"
+                  options={formOptions.seasons}
+                  value={props.values.season}
+                  handleChange={props.handleChange}
+                  label={<Label character="c">Season</Label>}
+                />
+              </div>
+            </Group>
+            <Group
+              character="2"
+              legend="Choose Teams"
+              className="grid sm:grid-cols-2 gap-2 sm:gap-4 w-full md:w-[95%] px-4 sm:px-8 md:px-0 sm:mx-auto"
+            >
+              <TeamSelection />
+            </Group>
+            <Group
+              character="3"
+              legend="Add judge(s)"
+              className="grid sm:gap-4 w-full md:w-[95%] px-4 sm:px-8 md:px-0 sm:mx-auto"
+            >
+              <JudgeCombobox
+                alreadyChosenJudges={selectedJudges}
+                selected={judgeValue}
+                setSelected={setJudgeValue}
+              />
+              <ul
+                className={clsx("border-t pt-2 border-gray-400/50", {
+                  hidden: !selectedJudges.length,
+                })}
+              >
+                {selectedJudges.map((judge) => (
+                  <li
+                    key={judge.id}
+                    className="flex items-center space-x-2 group"
+                  >
+                    <span>{judge.name}</span>
+                    <button
+                      className="group-hover:bg-red-400 group-hover:text-white transition-all text-red-400 rounded-full"
+                      onClick={() => removeSelectedJudge(judge.id)}
+                    >
+                      <BiX />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </Group>
+            <Group
+              character="4"
+              legend="Get your results"
+              className="flex justify-center w-full"
+            >
+              <Button
+                type="submit"
+                _type="primary"
+                className="w-64 text-sm !mt-0"
+                disabled={
+                  !team1Value ||
+                  !team2Value ||
+                  team1Value.teamId === team2Value.teamId
+                }
+              >
+                View prediction
+              </Button>
+            </Group>
+          </form>
+        )}
       </Formik>
     </Card>
-  )
-}
+  );
+};
 
-export default XRay
+export default XRay;

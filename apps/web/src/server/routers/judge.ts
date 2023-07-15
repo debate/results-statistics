@@ -16,7 +16,7 @@ const judgeRouter = router({
     )
     .query(async ({ input, ctx }) => {
       const { prisma } = ctx;
-      const [judge, ranking, filterData] = await Promise.all([
+      const [judge, ranking, filterData, topics, topicTags] = await Promise.all([
         prisma.judge.findUnique({
           where: {
             id: input.id
@@ -64,6 +64,9 @@ const judgeRouter = router({
                   select: {
                     name: true,
                     start: true,
+                    circuits: true,
+                    event: true,
+                    seasonId: true,
                     topic: {
                       include: {
                         tags: true
@@ -163,13 +166,31 @@ const judgeRouter = router({
           .then(d => d
           .map(({ tournament }) => tournament!.topic)
           .filter(t => t !== null) as (Topic & { tags: TopicTag[] })[]
-        )
+        ),
+       prisma.topic.findMany({
+          where: {
+            id: {
+              in: input.topics || []
+            }
+          }
+        }),
+        prisma.topicTag.findMany({
+          where: {
+            id: {
+              in: input.topicTags || []
+            }
+          }
+        })
       ]);
 
       return judge
         ? {
           ...judge,
           filterData,
+          filter: {
+            topics,
+            topicTags
+          },
           ...(ranking && { index: ranking.index })
         }
         : undefined
@@ -233,7 +254,8 @@ const judgeRouter = router({
             }
           },
           decision: true,
-          avgSpeakerPoints: true
+          avgSpeakerPoints: true,
+          wasSquirrel: true
         },
       });
 

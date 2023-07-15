@@ -150,6 +150,7 @@ model TopicTag {
 model Topic {
   id         Int          @id @default(autoincrement())
   resolution String       @db.Text
+  nickname   String       @default("")
   event      Event
   tags       TopicTag[]
   tournament Tournament[]
@@ -359,6 +360,7 @@ model Team {
   schools        School[]
   bids           Bid[]
   subscribers    EmailSubscriber[]
+  metadata       Json?
 
   @@map("teams")
 }
