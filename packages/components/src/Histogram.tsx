@@ -52,8 +52,8 @@ const Histogram = ({
         {visibleDeviations && ` ± ${visibleDeviations} σ`}
       </h3>
       <p className="text-gray-600 dark:text-gray-500 text-sm text-center">
-        μ: {mean.toFixed(1)}
-        &nbsp; σ: {stdDev.toFixed(1)}
+        μ: {mean?.toFixed(1)}
+        &nbsp; σ: {stdDev?.toFixed(1)}
       </p>
       <ComposedChart
         width={300}

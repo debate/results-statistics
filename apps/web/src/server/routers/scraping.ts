@@ -3,6 +3,7 @@ import { procedure, router } from '../trpc';
 import * as cheerio from 'cheerio';
 import db from '@src/services/db.service';
 import { JudgeRanking, TeamRanking } from '@shared/database';
+import batchPromises from '@src/utils/batch-promises';
 
 export interface TournamentSearchResult {
   id: number;
@@ -165,7 +166,7 @@ const scrapingRouter = router({
         return circuitRank[0][0];
       };
 
-      const teams = (await Promise.all(teamLastNames.map(async (lastNames, idx) => {
+      const teams = await batchPromises(teamLastNames.map(async (lastNames, idx) => {
         const team = await prisma.team.findFirst({
           where: {
             AND: lastNames.map(lastName => ({
@@ -203,7 +204,7 @@ const scrapingRouter = router({
         } else {
           return team;
         }
-      })));
+      }), 50);
 
       type Team = typeof teams[0];
       const teamsWithCodes = teams.map((team, idx) => ({ code: teamCodes[idx], ...team })) as (Team & { code: string })[];
@@ -231,12 +232,24 @@ const scrapingRouter = router({
 
       const judgeNames: string[] = [];
 
+      let targetCols: number[] = [];
+
       $('tr').each((idx, row) => {
-        if (idx === 0) return;
+        if (idx === 0) {
+          $(row).find('th').each((idx, cell) => {
+            if (["First", "Middle", "Last"].includes($(cell).text().trim())) {
+              targetCols.push(idx);
+            }
+          });
+          return;
+        };
         const names: string[] = [];
         $(row).find('td').each((idx, cell) => {
-          if (idx === 1 || idx === 2) {
-            names.push($(cell).text().trim());
+          if (targetCols.includes(idx)) {
+            const text = $(cell).text().trim();
+            if (text) {
+              names.push(text);
+            }
           }
         });
         judgeNames.push(names.join(' '))
@@ -287,7 +300,7 @@ const scrapingRouter = router({
         return circuitRank[0][0];
       };
 
-      const judges = await Promise.all(judgeNames.map(async (name, idx) => {
+      const judges = await batchPromises(judgeNames.map(async (name, idx) => {
         const judge = await prisma.judge.findFirst({
           where: {
             name: {
@@ -303,7 +316,7 @@ const scrapingRouter = router({
           const rank = await getRank(judge.id);
           return { ...judge, rank: rank ? rank : null}
         }
-      }));
+      }), 50);
 
       type Judge = typeof judges[0];
 

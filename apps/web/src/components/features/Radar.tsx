@@ -260,15 +260,15 @@ const Radar = () => {
             disabled={!tournament || !pool || !field}
             onClick={() =>
               router.push({
-                pathname: "/radar/threats",
+                pathname: "/radar/strikes",
                 query: {
                   tourn: tournament?.id,
-                  event: field?.id,
+                  pool: pool?.id,
                 },
               })
             }
           >
-            Threat Sheet
+            Strike Sheet
           </Button>
           <p className="px-1 pt-px text-red-400 border-red-400 border rounded-full !mt-0">
             OR
@@ -279,15 +279,15 @@ const Radar = () => {
             disabled={!tournament || !pool || !field}
             onClick={() =>
               router.push({
-                pathname: "/radar/strikes",
+                pathname: "/radar/threats",
                 query: {
                   tourn: tournament?.id,
-                  pool: pool?.id,
+                  event: field?.id,
                 },
               })
             }
           >
-            Strike Sheet
+            Threat Sheet
           </Button>
         </Group>
       </form>
