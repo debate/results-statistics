@@ -64,6 +64,7 @@ const BidTable = ({
       icon={<IoMedalOutline />}
       title="Bids"
       className="max-w-[800px] mx-auto my-4 md:my-8"
+      collapsible
     >
       <Table
         data={data}

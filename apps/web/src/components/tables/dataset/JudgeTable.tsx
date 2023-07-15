@@ -50,6 +50,7 @@ const JudgeTable = ({ count }: JudgeTableProps) => {
       icon={<TbGavel />}
       title="Judges"
       className="max-w-[800px] mx-auto my-4 md:my-8"
+      collapsible
     >
       <Table
         data={data}

@@ -183,6 +183,7 @@ const datasetRouter = router({
           }[],
           object[]
         ],
+        // # Silver Qualifiers
         (await db).query(`
           SELECT COUNT(*) AS numSilverQualifiers
           FROM (
@@ -254,6 +255,66 @@ const datasetRouter = router({
             }
           }
         }),
+        // # Speak Stats
+        prisma.tournamentSpeakerResult.findMany({
+          where: {
+            result: {
+              tournament: {
+                circuits: {
+                  some: {
+                    id: input.circuit
+                  }
+                },
+                seasonId: input.season
+              }
+            },
+          },
+          select: {
+            stdDevPoints: true,
+            rawAvgPoints: true,
+          }
+        }),
+        // Squirrel / Screw Stats
+        prisma.judgeTournamentResult.findMany({
+          where: {
+            tournament: {
+              circuits: {
+                some: {
+                  id: input.circuit
+                }
+              },
+              seasonId: input.season
+            }
+          },
+          select: {
+            numPrelimScrews: true,
+            numSquirrels: true,
+            numAff: true,
+            numPro: true,
+            numNeg: true,
+            numCon: true,
+          }
+        }),
+        // OTR Chart
+        prisma.teamRanking.findMany({
+          where: {
+            circuitId: input.circuit,
+            seasonId: input.season
+          },
+          select: {
+            otr: true
+          }
+        }),
+        // Index Chart
+        prisma.judgeRanking.findMany({
+          where: {
+            circuitId: input.circuit,
+            seasonId: input.season
+          },
+          select: {
+            index: true
+          }
+        }),
       ]);
 
       return {
@@ -266,6 +327,12 @@ const datasetRouter = router({
         numGoldQualifiers: data[6][0][0].numGoldQualifiers,
         numSilverQualifiers: data[7][0][0].numSilverQualifiers,
         numJudges: data[8],
+        chartData: {
+          speaking: data[9],
+          judge: data[10],
+          otr: data[11],
+          index: data[12]
+        }
       };
     }),
   leaderboard: procedure

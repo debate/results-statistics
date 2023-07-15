@@ -59,6 +59,7 @@ const LeaderboardTable = ({ count }: LeaderboardTableProps) => {
       icon={<BsTrophy />}
       title="Leaderboard"
       className="max-w-[800px] mx-auto my-4 md:my-8"
+      collapsible
     >
       <Table
         data={data as LeaderboardRow[] | undefined}
@@ -75,7 +76,7 @@ const LeaderboardTable = ({ count }: LeaderboardTableProps) => {
                 <p className="flex items-center">
                   {props.getValue()[0].code}
                   {(props.row.original.team.metadata as any)?.nsdAlum && (
-                    <NsdBadge />
+                    <NsdBadge size="small" muted />
                   )}
                 </p>
               ),

@@ -18,6 +18,7 @@ import { appRouter } from "@src/server/routers/_app";
 import { createProxySSGHelpers } from "@trpc/react-query/ssg";
 import { GetServerSideProps } from "next";
 import { ParsedUrlQuery } from "querystring";
+import DatasetCharts from "@src/components/charts/DatasetCharts";
 
 const Dataset = () => {
   const { query, isReady, asPath } = useRouter();
@@ -112,6 +113,7 @@ const Dataset = () => {
             />
           }
         />
+        <DatasetCharts data={data?.chartData} />
         <LeaderboardTable count={data?.numTeams || 50} />
         <JudgeTable count={data?.numJudges || 50} />
         <TournamentTable count={data?.numTournaments || 50} />

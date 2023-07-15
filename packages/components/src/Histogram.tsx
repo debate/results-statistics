@@ -6,45 +6,71 @@ import { useTheme } from "next-themes";
 interface HistogramProps {
   data: number[];
   dataType: string;
+  visibleDeviations?: number;
+  isPercentage?: boolean;
 }
 
-const Histogram = ({ data, dataType }: HistogramProps) => {
+const Histogram = ({
+  data,
+  dataType,
+  visibleDeviations,
+  isPercentage,
+}: HistogramProps) => {
   const { theme } = useTheme();
-  const chartData = useMemo(() => {
-    const formattedData: {
+  const { mean, stdDev, filteredData } = useMemo(() => {
+    const filteredData: {
       count: number;
       x0: number;
       x1: number;
       range: string;
     }[] = [];
-    const bins = d3.bin()(data);
+    const mean = d3.mean(data)!;
+    const stdDev = d3.deviation(data)!;
+
+    const bins = d3.bin()(
+      visibleDeviations
+        ? data.filter((d) => Math.abs((d - mean) / stdDev) <= visibleDeviations)
+        : data
+    );
     bins.map((bin) => {
       bin.x0 &&
         bin.x1 &&
-        formattedData.push({
+        filteredData.push({
           count: bin.length,
           x0: bin.x0,
           x1: bin.x1,
           range: `${bin.x0}-${bin.x1}`,
         });
     });
-    return formattedData;
-  }, [data]);
+    return { mean, stdDev, filteredData };
+  }, [data, visibleDeviations]);
 
   return (
     <div className="w-full mx-auto pr-8 flex flex-col items-center">
       <h3 className="ml-6 mb-2 text-gray-600 dark:text-gray-500">
         {dataType} Distribution
+        {visibleDeviations && ` ± ${visibleDeviations} σ`}
       </h3>
+      <p className="text-gray-600 dark:text-gray-500 text-sm text-center">
+        μ: {mean.toFixed(1)}
+        &nbsp; σ: {stdDev.toFixed(1)}
+      </p>
       <ComposedChart
         width={300}
         height={200}
-        data={chartData}
+        data={filteredData}
         barCategoryGap={3}
-        margin={{ top: 10, bottom: 25, right: 30 }}
+        margin={{ top: 10, bottom: 25, right: 30, left: 10 }}
       >
         <XAxis dataKey="range" hide />
-        <XAxis dataKey="x0" xAxisId="values" tickMargin={8}>
+        <XAxis
+          dataKey="x0"
+          xAxisId="values"
+          tickMargin={8}
+          tickFormatter={
+            isPercentage ? (v: number) => (v * 100).toFixed(0) + "%" : undefined
+          }
+        >
           <Label
             position="centerBottom"
             value={dataType}
@@ -57,7 +83,7 @@ const Histogram = ({ data, dataType }: HistogramProps) => {
             position="centerTop"
             value="Frequency"
             offset={20}
-            dx={-20}
+            dx={-30}
             angle={270}
           />
         </YAxis>

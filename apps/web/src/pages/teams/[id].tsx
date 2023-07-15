@@ -118,7 +118,7 @@ const Team = () => {
                     </button>
                   </span>
                 )}
-                {(data.metadata as any)?.nsdAlum && <NsdBadge />}
+                {(data.metadata as any)?.nsdAlum && <NsdBadge size="large" />}
               </>
             ) : undefined
           }

@@ -7,8 +7,14 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@shared/components";
+import clsx from "clsx";
 
-const NsdBadge = () => {
+interface NsdBadgeProps {
+  size: "small" | "large";
+  muted?: boolean;
+}
+
+const NsdBadge = ({ size, muted }: NsdBadgeProps) => {
   return (
     <TooltipProvider>
       <Tooltip>
@@ -18,7 +24,12 @@ const NsdBadge = () => {
             target="_blank"
             className="-mb-2 md:mb-0 inline-block ml-2"
           >
-            <Image src={NSDLogo} alt="NSD Logo" width={32} />
+            <Image
+              src={NSDLogo}
+              alt="NSD Logo"
+              width={size === "small" ? 22 : 32}
+              className={clsx({ "dark:opacity-80": muted })}
+            />
           </a>
         </TooltipTrigger>
         <TooltipContent>

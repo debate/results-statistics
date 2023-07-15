@@ -48,6 +48,7 @@ const TournamentTable = ({ count }: TournamentTableProps) => {
       icon={<AiOutlineCalendar />}
       title="Tournaments"
       className="max-w-[800px] mx-auto my-4 md:my-8"
+      collapsible
     >
       <Table
         data={data}
