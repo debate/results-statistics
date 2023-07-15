@@ -19,23 +19,23 @@ const DatasetTiebreakers = () => {
           dataset).
         </Balancer>
       </p>
-      <ul className="mx-auto list-disc px-4 md:px-0">
+      <ul className="mx-auto list-disc px-4 md:px-0 space-y-2">
         <li>
           <p>Team Leaderboard</p>
-          <ul className="ml-4 list-decimal">
+          <ul className="ml-4 list-decimal space-y-1">
             <li>OTR (higher is better)</li>
           </ul>
         </li>
         <li>
           <p>Judge Leaderboard</p>
-          <ul className="ml-4 list-decimal">
+          <ul className="ml-4 list-decimal space-y-1">
             <li>Index (higher is better, max of 10.0)</li>
             <li>Number of rounds</li>
           </ul>
         </li>
         <li>
           <p>School Leaderboard (2+ teams required)</p>
-          <ul className="ml-4 list-decimal">
+          <ul className="ml-4 list-decimal space-y-1">
             <li>Average of team OTRs</li>
             <li>Number of entries at tournaments</li>
             <li>Number of unique teams</li>
