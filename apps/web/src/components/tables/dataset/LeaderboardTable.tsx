@@ -57,7 +57,7 @@ const LeaderboardTable = ({ count }: LeaderboardTableProps) => {
   return (
     <Card
       icon={<BsTrophy />}
-      title="Leaderboard"
+      title="Teams"
       className="max-w-[800px] mx-auto my-4 md:my-8"
       collapsible
     >
