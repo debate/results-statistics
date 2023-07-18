@@ -36,7 +36,7 @@ const Card = ({
     <div
       className={clsx(
         className,
-        "rounded-md md:border border-gray-400/50 backdrop-blur-3xl mx-4 md:mx-auto"
+        "rounded-md md:border border-gray-400/50 backdrop-blur-3xl"
       )}
       {...props}
     >

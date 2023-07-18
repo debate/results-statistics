@@ -18,7 +18,7 @@ const ToolPage = ({
 }: ToolPageProps) => {
   return (
     <div className="w-full min-h-screen lg:min-h-full flex flex-col justify-center">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full place-items-start p-4 lg:p-8 max-w-[1500px] mx-auto">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full lg:h-[800px] place-items-start p-4 lg:p-8 max-w-[1500px] mx-auto">
         <div className="grid place-items-center mx-auto">
           <div className="space-y-4 w-fit mx-auto">
             <h1 className="text-4xl lg:text-6xl xl:text-8xl font-mono w-fit lg:max-w-3xl mx-auto">
@@ -61,12 +61,12 @@ const ToolPage = ({
             </p>
           </div>
         </div>
-        <div className="hidden lg:flex space-y-10 flex-col justify-center">
+        <div className="hidden lg:flex space-y-10 flex-col justify-start w-full h-full">
           {feature}
           <ToolbarNavigation />
         </div>
       </div>
-      <div className="flex w-full justify-center lg:hidden mt-8">
+      <div className="flex w-full justify-start lg:hidden mt-8">
         <ToolbarNavigation />
       </div>
     </div>
