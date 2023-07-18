@@ -57,6 +57,7 @@ import FeatureGridItem from "@src/components/home/FeatureGridItem";
 import { BiRadar } from "react-icons/bi";
 import { RiBodyScanLine } from "react-icons/ri";
 import { GiSundial } from "react-icons/gi";
+import QuickLinkGrid from "@src/components/home/QuickLinkGrid";
 
 interface HomeSEOProps {
   title: string;
@@ -157,62 +158,17 @@ const Home = ({
             <h4 className="w-full text-center md:text-left mt-2 md:mt-0 text-indigo-400/80 dark:text-indigo-200 text-2xl md:text-3xl lg:text-4xl md:pl-1 xl:pl-2">
               Data for all things debate.
             </h4>
-            <div className="flex w-full justify-between my-4 md:ml-2">
-              <Formik
-                initialValues={{
-                  query: "",
-                }}
-                validationSchema={Yup.object().shape({
-                  query: Yup.string().required(
-                    "Enter a team name, school, tournament, etc."
-                  ),
-                })}
-                onSubmit={(values) => {
-                  router.push({
-                    pathname: "/search",
-                    query: {
-                      query: values.query,
-                    },
-                  });
-                }}
+            <div className="flex flex-col space-y-2 md:ml-2.5">
+              <QuickLinkGrid />
+              <button
+                className="flex items-center space-x-1 group mx-auto mt-2 md:mx-0"
+                onClick={() => setEmailModalActive(true)}
               >
-                {(props) => (
-                  <div className="w-full">
-                    <form className="flex pointer-events-none select-none relative w-2/3 md:w-[400px] lg:w-[450px] mx-auto md:mx-0 rounded-md">
-                      <div className="absolute w-full h-full flex justify-center items-center bg-gray-200/10 rounded-md backdrop-blur-sm">
-                        <p className="text-center text-xs md:text-[1rem]">
-                          Global search coming soon — use Compass below!
-                        </p>
-                      </div>
-                      <Input
-                        name="query"
-                        onChange={props.handleChange}
-                        placeholder="find anything . . ."
-                        className="w-full shadow"
-                      />
-                      <Button
-                        type="submit"
-                        onClick={props.handleSubmit}
-                        icon={<FaSearch />}
-                        _type="primary"
-                        className="w-8 h-8 !mx-0 !-ml-8"
-                      />
-                    </form>
-                    {props.touched.query && props.errors.query && (
-                      <p className="ml-1 text-red-400">{props.errors.query}</p>
-                    )}
-                    <button
-                      className="flex items-center space-x-1 group mx-auto mt-2 md:mx-0"
-                      onClick={() => setEmailModalActive(true)}
-                    >
-                      <p className="underline text-sm md:text-md text-blue-500">
-                        Stay in the loop
-                      </p>
-                      <ArrowRightIcon className="text-blue-500 group-hover:-rotate-45 group-hover:bg-gradient-to-r group-hover:!text-white from-sky-400 via-purple-500 to-red-400 rounded-full transition-all" />
-                    </button>
-                  </div>
-                )}
-              </Formik>
+                <p className="underline text-sm md:text-md text-blue-500">
+                  Stay in the loop
+                </p>
+                <ArrowRightIcon className="text-blue-500 group-hover:-rotate-45 group-active:scale-[115%] group-hover:bg-gradient-to-r group-hover:!text-white from-sky-400 via-purple-500 to-red-400 rounded-full transition-all" />
+              </button>
             </div>
           </div>
           <div

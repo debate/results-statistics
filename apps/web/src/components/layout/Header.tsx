@@ -48,7 +48,7 @@ const Header = ({ router }: any) => {
 				<Link primary href="/#api" text="API" className={headerTextStyle} wrapperClassName={headerWrapperStyle} /> */}
         <span className="w-2" />
         <Button
-          icon={theme === "dark" ? <FaSun /> : <FaMoon />}
+          icon={!theme || theme === "dark" ? <FaSun /> : <FaMoon />}
           className="!bg-indigo-300"
           title="Toggle Theme"
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
