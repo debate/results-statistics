@@ -56,6 +56,7 @@ import EmailModal from "@src/components/email/email-modal";
 import FeatureGridItem from "@src/components/home/FeatureGridItem";
 import { BiRadar } from "react-icons/bi";
 import { RiBodyScanLine } from "react-icons/ri";
+import { GiSundial } from "react-icons/gi";
 
 interface HomeSEOProps {
   title: string;
@@ -393,7 +394,16 @@ const Home = ({
               description="Search our datasets with ease. Get leaderboards, bids, analytics, and more."
               src={theme === "dark" ? DatasetDark : DatasetLight}
               slug="compass"
-              priority
+              wide
+            />
+            <FeatureGridItem
+              name="X-Ray"
+              theme="text-violet-300"
+              Icon={RiBodyScanLine}
+              description="Choose teams, add judges, and get a head-to-head prediction for any round."
+              src={theme === "dark" ? H2HDark : H2HLight}
+              slug="x-ray"
+              tall
             />
             <FeatureGridItem
               name="Radar"
@@ -404,12 +414,13 @@ const Home = ({
               slug="radar"
             />
             <FeatureGridItem
-              name="X-Ray"
-              theme="text-violet-300"
-              Icon={RiBodyScanLine}
-              description="Choose teams, add judges, and get a head-to-head prediction for any round."
+              name="Sundial"
+              theme="text-orange-300"
+              Icon={GiSundial}
+              description="The ultimate bid calendar. Filter by date, independent entry status, bid level, and more."
               src={theme === "dark" ? H2HDark : H2HLight}
-              slug="x-ray"
+              onPreviewClick={() => setEmailModalActive(true)}
+              preview
             />
           </div>
         </div>

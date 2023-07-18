@@ -29,7 +29,7 @@ const ToolPage = ({
                 </span>
                 .
               </h1>
-              <p className="text-gray-600 dark:text-gray-400 text-lg lg:text-xl lg:ml-2">
+              <p className="text-gray-600 dark:text-gray-400 text-lg lg:text-xl lg:ml-2 text-center lg:text-start">
                 {description}
               </p>
               <div className="lg:hidden py-8">{feature}</div>

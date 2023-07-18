@@ -252,7 +252,7 @@ const Radar = () => {
         <Group
           character="3"
           legend="Get your results"
-          className="flex justify-center w-full"
+          className="flex flex-col md:flex-row justify-center items-center w-full"
         >
           <Button
             _type="primary"
@@ -270,7 +270,7 @@ const Radar = () => {
           >
             Strike Sheet
           </Button>
-          <p className="px-1 pt-px text-red-400 border-red-400 border rounded-full !mt-0">
+          <p className="px-1 w-fit pt-px text-red-400 border-red-400 border rounded-full !my-2">
             OR
           </p>
           <Button
