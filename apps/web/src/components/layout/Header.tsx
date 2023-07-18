@@ -32,7 +32,7 @@ const Header = ({ router }: any) => {
         href="/"
       >
         <Image src={Logo32} draggable={false} alt="Debate Land" />
-        <Text className="mt-[1px] !text-white md:text-xl font-extrabold">
+        <Text className="mt-[1px] !text-white md:text-xl font-semibold">
           Debate Land
         </Text>
         <div className="absolute -top-2 -right-3 bg-gray-50/80 rounded-full ">
