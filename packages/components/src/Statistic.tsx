@@ -66,7 +66,7 @@ const Statistic = ({
               <Text
                 className={clsx(
                   {
-                    "font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-sky-400":
+                    "font-semibold text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-sky-400":
                       primary && value !== undefined,
                     "bg-gray-300/40 dark:bg-gray-700/40 animate-pulse rounded":
                       value === undefined,

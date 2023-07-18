@@ -96,7 +96,7 @@ const getClassNames = (nestingLevel: NestingLevel) => ({
   table: "table-auto sm:table-fixed md:table-auto mx-auto w-full text-sm",
   td: "py-3 px-2",
   header: {
-    th: "py-3 px-2 text-left",
+    th: "py-3 px-2 text-left font-normal",
     tr: `dark:text-gray-300 text-gray-700 border-b ${NestingLevelBorderLookup[nestingLevel]}`,
   },
   tr: `dark:text-gray-300 text-gray-700 border-t ${NestingLevelBorderLookup[nestingLevel]}`,

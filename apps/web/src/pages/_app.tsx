@@ -51,7 +51,7 @@ const App = ({ Component, router, pageProps }: AppProps) => {
       >
         <Header />
         <LoadingAnimation visible={loadingAnimationIsVisibile} />
-        <div className="mt-[3rem] min-h-[calc(100vh-3rem)] grid place-content-center">
+        <div className="mt-[3rem] min-h-[calc(100vh-3rem)] w-full">
           <Component {...pageProps} />
         </div>
         <Footer />

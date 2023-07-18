@@ -27,6 +27,7 @@ module.exports = {
         "beams-light": "url('/assets/img/beams-light.jpg')",
         "beams-dark": "url('/assets/img/beams-dark.jpg')",
         grid: "url('/assets/img/grid.svg')",
+        noise: "url('/assets/img/noise.svg')",
       },
     },
   },

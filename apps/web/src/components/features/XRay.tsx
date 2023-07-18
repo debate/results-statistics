@@ -167,8 +167,8 @@ const XRay = () => {
     <Card
       icon={<RiBodyScanLine />}
       title="X-Ray"
-      theme="text-blue-400"
-      className="bg-sky-100 dark:bg-black shadow-2xl shadow-sky-400/70 dark:shadow-blue-400/50 p-2"
+      theme="text-violet-400"
+      className="bg-sky-100 dark:bg-black shadow-2xl shadow-sky-400/70 dark:shadow-violet-400/50 p-2"
     >
       <Formik
         innerRef={formikRef}
