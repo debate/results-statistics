@@ -112,9 +112,6 @@ const Home = ({
   changelog,
 }: HomeProps) => {
   const [mounted, setMounted] = useState(false);
-  const isLarge = useMediaQuery({
-    query: "(min-width: 768px)",
-  });
   const { theme } = useTheme();
   const router = useRouter();
   useEffect(() => {
@@ -197,7 +194,7 @@ const Home = ({
       </section>
       <section
         id="stats"
-        className="w-full flex flex-col-reverse md:space-x-4 md:flex-row sm:justify-center xl:justify-start xl:space-x-0 mt-32 md:mt-0"
+        className="w-full flex flex-col-reverse md:space-x-4 md:flex-row sm:justify-center xl:justify-start xl:space-x-0 mt-8 md:mt-0"
       >
         <div className="flex flex-col items-center xl:items-start xl:ml-[20%] xl:w-[15%] xl:border-l-[1px] xl:hover:border-l-4 transition-all md:pl-4 border-red-400 z-10 my-2 md:my-0">
           <CountUp

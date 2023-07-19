@@ -6,7 +6,12 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Label } from "recharts";
 import { trpc } from "@src/utils/trpc";
 
 const DemoSpeakChart = () => {
-  const { data } = trpc.landingPage.speakingData.useQuery();
+  const { data } = trpc.landingPage.speakingData.useQuery(undefined, {
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    staleTime: 1000 * 60 * 60 * 24,
+  });
 
   const filteredData = useMemo(() => {
     if (!data) return [];
