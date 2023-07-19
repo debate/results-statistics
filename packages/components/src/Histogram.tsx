@@ -1,13 +1,26 @@
 import React, { useMemo } from "react";
 import * as d3 from "d3-array";
-import { XAxis, YAxis, Bar, ComposedChart, Line, Label } from "recharts";
+import {
+  XAxis,
+  YAxis,
+  Bar,
+  ComposedChart,
+  Line,
+  Label,
+  Area,
+  AreaChart,
+  CartesianGrid,
+  Tooltip,
+} from "recharts";
 import { useTheme } from "next-themes";
+import clsx from "clsx";
 
 interface HistogramProps {
   data: number[];
   dataType: string;
   visibleDeviations?: number;
   isPercentage?: boolean;
+  primary?: boolean;
 }
 
 const Histogram = ({
@@ -15,6 +28,7 @@ const Histogram = ({
   dataType,
   visibleDeviations,
   isPercentage,
+  primary,
 }: HistogramProps) => {
   const { theme } = useTheme();
   const { mean, stdDev, filteredData } = useMemo(() => {
@@ -47,7 +61,12 @@ const Histogram = ({
 
   return (
     <div className="w-full mx-auto pr-8 flex flex-col items-center">
-      <h3 className="ml-6 mb-2 text-gray-600 dark:text-gray-500">
+      <h3
+        className={clsx("ml-6 mb-2", {
+          "text-indigo-500 dark:text-indigo-400 font-semibold": primary,
+          "text-gray-600 dark:text-gray-500": !primary,
+        })}
+      >
         {dataType} Distribution
         {visibleDeviations && ` ± ${visibleDeviations} σ`}
       </h3>
@@ -60,7 +79,7 @@ const Histogram = ({
         width={300}
         height={200}
         data={filteredData}
-        barCategoryGap={3}
+        barCategoryGap={1}
         margin={{ top: 10, bottom: 25, right: 30, left: 10 }}
       >
         <XAxis dataKey="range" hide />

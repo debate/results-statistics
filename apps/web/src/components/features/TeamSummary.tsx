@@ -25,9 +25,9 @@ const TeamSummary = (props: TeamSummaryProps) => {
     <Card
       icon={<HiOutlineLightBulb />}
       title="Summary"
-      className="relative max-w-[800px] mx-auto my-4 md:my-8 grid place-items-start"
+      className="relative max-w-[800px] mx-auto my-4 md:my-8"
     >
-      <p className="flex flex-wrap space-x-1 text-center">
+      <p className="mx-auto text-center">
         <Balancer>
           {props.code || <Loader width={22} height={6} />} is the{" "}
           {props.rank ? "#" + props.rank : <Loader width={8} height={6} />} team

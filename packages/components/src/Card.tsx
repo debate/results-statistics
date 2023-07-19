@@ -60,7 +60,7 @@ const Card = ({
                 as="h3"
                 className={clsx(
                   theme || "text-luka-200 dark:text-blue-600",
-                  "bold flex items-center text-2xl sm:text-3xl"
+                  "font-semibold flex items-center text-2xl sm:text-3xl"
                 )}
               >
                 {icon}

@@ -58,8 +58,11 @@ import { BiRadar } from "react-icons/bi";
 import { RiBodyScanLine } from "react-icons/ri";
 import { GiSundial } from "react-icons/gi";
 import QuickLinkGrid from "@src/components/home/QuickLinkGrid";
-import { trpc } from "@src/utils/trpc";
-import TextTransition from "@src/components/home/TextTransition";
+import LiveUpdates from "@src/components/home/LiveUpdates";
+import { LeaderboardTable } from "@src/components/tables/dataset";
+import DemoOTRChart from "@src/components/home/DemoOTRChart";
+import DemoPredictionChart from "@src/components/home/DemoPredictionChart";
+import DemoSpeakChart from "@src/components/home/DemoSpeakChart";
 
 interface HomeSEOProps {
   title: string;
@@ -112,14 +115,6 @@ const Home = ({
   const isLarge = useMediaQuery({
     query: "(min-width: 768px)",
   });
-  const { data: updates } = trpc.landingPage.liveUpdates.useQuery();
-  const [index, setIndex] = React.useState(0);
-
-  useEffect(() => {
-    const intervalId = setInterval(() => setIndex((index) => index + 1), 3000);
-
-    return () => clearTimeout(intervalId);
-  }, []);
   const { theme } = useTheme();
   const router = useRouter();
   useEffect(() => {
@@ -161,80 +156,42 @@ const Home = ({
         className="w-full md:min-h-screen flex flex-col justify-start md:justify-around"
       >
         <div className="flex flex-col md:flex-row justify-center items-center z-30 mt-20 md:mt-0">
-          <div id="hero-left" className="max-w-[600px] md:ml-5 lg:mr-20">
-            <h1 className="font-semibold text-8xl text-center md:text-left md:text-[7rem] lg:text-[8rem] xl:text-[9rem] 2xl:text-[10rem]">
+          <div id="hero-left" className="max-w-[700px] md:ml-5 lg:mr-20">
+            <h1 className="font-semibold text-7xl text-center md:text-left md:text-[7rem] lg:text-[8rem] xl:text-[9rem] 2xl:text-[10rem]">
               DEBATE LAND
             </h1>
-            <h4 className="w-full text-center md:text-left mt-2 md:mt-0 text-indigo-400/80 dark:text-indigo-200 text-2xl md:text-3xl lg:text-4xl md:pl-1 xl:pl-2">
+            <h4 className="w-full text-center md:text-left mt-2 md:mt-0 text-indigo-500 dark:text-indigo-200 text-2xl md:text-3xl lg:text-4xl md:pl-1 xl:pl-2">
               Data for all things debate.
             </h4>
             <div className="flex flex-col space-y-3 md:ml-2.5">
               <QuickLinkGrid />
-              <div className="flex items-center space-x-2 text-blue-500 font-semibold mx-auto md:mx-0">
-                <div className="relative grid place-content-center">
-                  <span className="w-3 h-3 bg-gradient-to-r from-sky-400 via-purple-500 to-red-400 rounded-full z-20" />
-                  <div className="absolute w-full h-full grid place-content-center">
-                    <span className="w-3 h-3 bg-gradient-to-r from-sky-400 via-purple-500 to-red-400 rounded-full animate-ping" />
-                  </div>
-                </div>
-                <div className="flex space-x-1 max-w-[300px] lg:max-w-[400px]">
-                  <p>Live:</p>
-                  {updates ? (
-                    <TextTransition
-                      text={updates[index % updates.length]}
-                      springConfig="stiff"
-                      className="max-w-lg"
-                      inline
-                    />
-                  ) : undefined}
-                </div>
-              </div>
+              <LiveUpdates />
               <button
                 className="flex items-center space-x-1 group mx-auto mt-2 md:mx-0"
                 onClick={() => setEmailModalActive(true)}
               >
-                <p className="underline text-sm md:text-md text-blue-500">
+                <p className="underline text-sm md:text-md text-red-400">
                   Stay in the loop
                 </p>
-                <ArrowRightIcon className="text-blue-500 group-hover:-rotate-45 group-active:scale-[115%] group-hover:bg-gradient-to-r group-hover:!text-white from-sky-400 via-purple-500 to-red-400 rounded-full transition-all" />
+                <ArrowRightIcon className="text-red-400 group-hover:-rotate-45 group-active:scale-[115%] group-hover:bg-red-400 group-hover:text-white rounded-full transition-all" />
               </button>
             </div>
           </div>
           <div
             id="hero-right"
-            className="transition-all hover:shadow-halo rounded-lg overflow-hidden cursor-pointer"
-            onClick={() =>
-              router.push(
-                "/teams/36cbd6f9eec6f5f47abb80d5?circuit=40&season=2023"
-              )
-            }
+            className="overflow-hidden h-full group hidden md:block rounded-lg cursor-pointer"
           >
-            {isLarge && (
-              <div className="w-[750px] xl:w-[1000px] 2xl:w-[1250px] h-auto flex flex-col overflow-hidden border border-gray-400/50 rounded-lg relative">
-                <div className="absolute w-full h-6 bg-white dark:bg-gray-800 flex justify-between items-center">
-                  <div className="w-18 h-6 flex justify-start items-center px-3 space-x-1">
-                    <div className="w-3 h-3 bg-red-500 rounded-full" />
-                    <div className="w-3 h-3 bg-yellow-500 rounded-full" />
-                    <div className="w-3 h-3 bg-green-500 rounded-full" />
-                  </div>
-                  <div className="w-full h-4 rounded border border-gray-400 dark:border-gray-600 bg-gray-50 dark:bg-coal mr-4 flex items-center justify-start">
-                    <FaLock size={8} className="mx-1" />
-                    <p className="text-[0.6rem] align-middle">
-                      debate.land/teams/7f6e1f6807d8416c6f5ac659
-                    </p>
-                  </div>
-                </div>
-                <Image
-                  src={theme == "light" ? WebGraphicLight : WebGraphicDark}
-                  priority={true}
-                  draggable={false}
-                  placeholder="blur"
-                  alt="Team Sample Graphic"
-                  role="presentation"
-                  loading="eager"
+            <div className="min-w-[1200px]">
+              <div className="relative pb-12 pl-4">
+                <LeaderboardTable
+                  demo={{ season: 2023, circuit: 40 }}
+                  count={4206}
                 />
+                <DemoOTRChart />
+                <DemoPredictionChart />
+                <DemoSpeakChart />
               </div>
-            )}
+            </div>
           </div>
         </div>
       </section>
@@ -242,7 +199,7 @@ const Home = ({
         id="stats"
         className="w-full flex flex-col-reverse md:space-x-4 md:flex-row sm:justify-center xl:justify-start xl:space-x-0 mt-32 md:mt-0"
       >
-        <div className="flex flex-col items-center xl:items-start xl:ml-[20%] xl:w-[15%] xl:border-l-[1px] xl:hover:border-l-4 transition-all pl-4 border-red-400 z-10 my-2 md:my-0">
+        <div className="flex flex-col items-center xl:items-start xl:ml-[20%] xl:w-[15%] xl:border-l-[1px] xl:hover:border-l-4 transition-all md:pl-4 border-red-400 z-10 my-2 md:my-0">
           <CountUp
             className="text-6xl md:text-5xl lg:text-[3vw]"
             start={0}
@@ -251,7 +208,7 @@ const Home = ({
           />
           <Text className="!text-gray-400">Tournaments</Text>
         </div>
-        <div className="flex flex-col items-center xl:items-start xl:w-[15%] xl:border-l-[1px] xl:hover:border-l-4 transition-all pl-4 border-red-400 z-10 my-2 md:my-0">
+        <div className="flex flex-col items-center xl:items-start xl:w-[15%] xl:border-l-[1px] xl:hover:border-l-4 transition-all md:pl-4 border-red-400 z-10 my-2 md:my-0">
           <CountUp
             className="text-6xl md:text-5xl lg:text-[3vw]"
             start={0}
@@ -260,7 +217,7 @@ const Home = ({
           />
           <Text className="!text-gray-400 pb-4 sm:pb-0">Judges</Text>
         </div>
-        <div className="flex flex-col items-center xl:items-start xl:w-[15%] xl:border-l-[1px] xl:hover:border-l-4 transition-all pl-4 border-red-400 z-10 my-2 md:my-0">
+        <div className="flex flex-col items-center xl:items-start xl:w-[15%] xl:border-l-[1px] xl:hover:border-l-4 transition-all md:pl-4 border-red-400 z-10 my-2 md:my-0">
           <CountUp
             className="text-6xl md:text-5xl lg:text-[3vw]"
             start={0}
@@ -269,7 +226,7 @@ const Home = ({
           />
           <Text className="!text-gray-400 pb-4 sm:pb-0">Competitors</Text>
         </div>
-        <div className="flex flex-col items-center xl:items-start xl:w-[15%] xl:border-l-[1px] xl:hover:border-l-4 transition-all pl-4 border-red-400 z-10 my-2 md:my-0">
+        <div className="flex flex-col items-center xl:items-start xl:w-[15%] xl:border-l-[1px] xl:hover:border-l-4 transition-all md:pl-4 border-red-400 z-10 my-2 md:my-0">
           <CountUp
             className="text-6xl md:text-5xl lg:text-[3vw]"
             start={0}
@@ -627,7 +584,9 @@ export const getStaticProps = async ({ preview = false }) => {
     },
   });
 
-  await ssg.feature.compass.prefetch({});
+  await ssg.landingPage.liveUpdates.prefetch();
+  await ssg.landingPage.otrData.prefetch();
+  await ssg.landingPage.speakingData.prefetch();
 
   return {
     props: {

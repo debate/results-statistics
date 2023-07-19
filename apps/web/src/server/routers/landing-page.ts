@@ -3,7 +3,7 @@ import db from '@src/services/db.service';
 
 const landingPageRouter = router({
   liveUpdates: procedure
-    .query(async ({ input, ctx }) => {
+    .query(async ({ ctx }) => {
       const { prisma } = ctx;
 
       const tournaments = (await (await db).query(`
@@ -73,7 +73,39 @@ const landingPageRouter = router({
       }))).filter(update => !!update);
 
       return updates as string[];
-    })
+    }),
+  otrData: procedure
+    .query(({ ctx }) => (
+      ctx.prisma.teamRanking.findMany({
+        where: {
+          seasonId: 2023,
+          circuitId: 40
+        },
+        select: {
+          otr: true
+        }
+      })
+    )),
+  speakingData: procedure
+    .query(({ ctx }) => (
+      ctx.prisma.tournamentSpeakerResult.findMany({
+        where: {
+          result: {
+            tournament: {
+              seasonId: 2023,
+              circuits: {
+                some: {
+                  id: 40
+                }
+              }
+            }
+          }
+        },
+        select: {
+          rawAvgPoints: true
+        }
+      }).then(results => results.map(r => r.rawAvgPoints))
+    ))
 });
 
 export default landingPageRouter;

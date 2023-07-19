@@ -5,7 +5,7 @@ import { trpc } from "@src/utils/trpc";
 import { ThemeProvider } from "next-themes";
 import Script from "next/script";
 import type { AppProps } from "next/app";
-import { Poppins } from "next/font/google";
+import { Inter, Open_Sans, Poppins } from "next/font/google";
 import clsx from "clsx";
 import NProgress from "nprogress";
 import { Header, Footer } from "@src/components/layout";
@@ -13,11 +13,10 @@ import LoadingAnimation from "@src/components/loading-animation";
 
 NProgress.configure({ showSpinner: false });
 
-const montserrat = Poppins({
-  style: ["normal", "italic"],
-  weight: ["200", "400", "600", "800"],
+const montserrat = Inter({
+  style: ["normal"],
+  weight: ["300", "400", "600", "800"],
   subsets: ["latin"],
-  variable: "--font-open_sans",
 });
 
 const App = ({ Component, router, pageProps }: AppProps) => {

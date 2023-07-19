@@ -23,9 +23,9 @@ const JudgeSummary = (props: JudgeSummaryProps) => {
     <Card
       icon={<HiOutlineLightBulb />}
       title="Summary"
-      className="relative max-w-[800px] mx-auto my-4 md:my-8 grid place-items-start"
+      className="relative max-w-[800px] mx-auto my-4 md:my-8"
     >
-      <p className="flex flex-wrap space-x-1 text-center">
+      <p className="mx-auto text-center">
         <Balancer>
           {props.name || <Loader width={22} height={6} />} has a judge index of{" "}
           {props.index ? (

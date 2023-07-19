@@ -27,12 +27,12 @@ const links: { href: string; name: string }[] = [
 
 const QuickLinkGrid = () => {
   return (
-    <div className="flex flex-wrap w-full justify-center md:justify-start my-4 -ml-1 mb-1">
+    <div className="flex flex-wrap w-full justify-center md:justify-start my-4 md:-ml-1 mb-1">
       {links.map(({ name, href }, idx) => (
         <Link
           href={href}
           key={`quick-link-${idx}`}
-          className="bg-indigo-400 m-1 transition-all text-white px-1.5 py-0.5 rounded-full text-sm flex items-center space-x-1 group hover:shadow-halo hover:bg-gradient-to-r from-sky-400 via-purple-500 to-red-400"
+          className="bg-indigo-300 dark:bg-indigo-400 m-1 transition-all text-white px-1.5 py-0.5 rounded-full text-sm flex items-center space-x-1 group hover:shadow-halo hover:bg-gradient-to-r from-sky-400 via-purple-500 to-red-400"
         >
           <p className="transition-all">{name}</p>
           <BiLinkExternal className="group-hover:-translate-y-0.5 group-active:scale-75 transition-all" />
