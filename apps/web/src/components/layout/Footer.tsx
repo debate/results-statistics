@@ -49,7 +49,7 @@ const Footer = () => {
               <div>
                 <Text
                   capitalize
-                  weight="bold"
+                  weight="semibold"
                   size="xl"
                   className="mt-2 md:mt-0"
                 >
@@ -91,7 +91,7 @@ const Footer = () => {
                 </ul>
               </div>
               <div>
-                <Text capitalize weight="bold" size="xl">
+                <Text capitalize weight="semibold" size="xl">
                   API & OSS
                 </Text>
                 <ul className="mt-2 space-y-2">
@@ -148,7 +148,7 @@ const Footer = () => {
             </div>
             <div className="md:grid md:grid-cols-2 md:gap-20">
               <div>
-                <Text capitalize weight="bold" size="xl">
+                <Text capitalize weight="semibold" size="xl">
                   Development
                 </Text>
                 <ul className="mt-2 space-y-2">
@@ -174,7 +174,7 @@ const Footer = () => {
               <div>
                 <Text
                   capitalize
-                  weight="bold"
+                  weight="semibold"
                   size="xl"
                   className="mt-2 md:mt-0"
                 >

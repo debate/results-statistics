@@ -7,6 +7,7 @@ import feedbackRouter from './feedbackRouter';
 import competitorRouter from './competitor';
 import emailRouter from './email';
 import scrapingRouter from './scraping';
+import landingPageRouter from './landing-page';
 
 export const appRouter = router({
   dataset: datasetRouter,
@@ -16,7 +17,8 @@ export const appRouter = router({
   feedback: feedbackRouter,
   competitor: competitorRouter,
   email: emailRouter,
-  scraping: scrapingRouter
+  scraping: scrapingRouter,
+  landingPage: landingPageRouter
 });
 
 // export type definition of API

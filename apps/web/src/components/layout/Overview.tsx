@@ -58,7 +58,7 @@ const Overview = (props: OverviewProps) => {
               className="absolute hidden lg:block top-50 right-100 w-72 h-72 bg-sky-500 rounded-full mix-blend-lighten filter blur-xl"
             />
             <div
-              id="blob2"
+              id="blob3"
               className="absolute hidden lg:block -top-8 right-28 w-72 h-72 bg-purple-500 rounded-full mix-blend-lighten filter blur-xl"
             />
             <Text

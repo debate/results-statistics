@@ -300,8 +300,8 @@ const HeadToHead = () => {
                   position="insideBottom"
                   angle={0}
                   offset={5}
-                  fill={theme === "dark" ? "white" : "black"}
-                  fontWeight="bold"
+                  fill={!theme || theme === "dark" ? "white" : "black"}
+                  fontWeight="600"
                 />
                 <Cell fill="rgb(56 189 248)" />
                 <Cell fill="rgb(167 139 250)" />
