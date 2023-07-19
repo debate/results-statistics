@@ -144,7 +144,7 @@ const Home = ({
       />
       <div
         id="beams-bg"
-        className="absolute -z-20 w-full h-[400%] md:h-[200%] bg-cover bg-fixed bg-beams-light dark:bg-beams-dark"
+        className="absolute -z-20 w-full h-[400%] md:h-[150%] bg-cover bg-fixed bg-beams-light dark:bg-beams-dark"
       />
       <section
         id="hero"
@@ -158,8 +158,20 @@ const Home = ({
             <h4 className="w-full text-center md:text-left mt-2 md:mt-0 text-indigo-400/80 dark:text-indigo-200 text-2xl md:text-3xl lg:text-4xl md:pl-1 xl:pl-2">
               Data for all things debate.
             </h4>
-            <div className="flex flex-col space-y-2 md:ml-2.5">
+            <div className="flex flex-col space-y-3 md:ml-2.5">
               <QuickLinkGrid />
+              <div className="flex items-center space-x-2 text-blue-500 font-semibold mx-auto md:mx-0">
+                <div className="relative grid place-content-center">
+                  <span className="w-3 h-3 bg-gradient-to-r from-sky-400 via-purple-500 to-red-400 rounded-full z-20" />
+                  <div className="absolute w-full h-full grid place-content-center">
+                    <span className="w-3 h-3 bg-gradient-to-r from-sky-400 via-purple-500 to-red-400 rounded-full animate-ping" />
+                  </div>
+                </div>
+                <div className="flex space-x-1">
+                  <p>Live:</p>
+                  <p>Durham WS went 7-0 at Harvard</p>
+                </div>
+              </div>
               <button
                 className="flex items-center space-x-1 group mx-auto mt-2 md:mx-0"
                 onClick={() => setEmailModalActive(true)}

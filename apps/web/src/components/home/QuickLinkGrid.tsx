@@ -27,7 +27,7 @@ const links: { href: string; name: string }[] = [
 
 const QuickLinkGrid = () => {
   return (
-    <div className="flex flex-wrap w-full justify-start my-4 -ml-1">
+    <div className="flex flex-wrap w-full justify-center md:justify-start my-4 -ml-1 mb-1">
       {links.map(({ name, href }, idx) => (
         <Link
           href={href}
