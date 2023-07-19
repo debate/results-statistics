@@ -40,7 +40,7 @@ const FeatureGridItem = ({
         onClick: onPreviewClick,
       })}
       className={clsx(
-        "h-72 group relative w-full bg-slate-500 dark:bg-slate-800 flex flex-col justify-between rounded-lg overflow-hidden md:hover:shadow-2xl row-span-1",
+        "h-72 group relative w-full bg-slate-500 dark:bg-slate-800 flex flex-col justify-between rounded-lg overflow-hidden md:hover:shadow-halo row-span-1",
         {
           "md:col-span-2": wide,
           "md:row-span-2 md:h-auto": tall,

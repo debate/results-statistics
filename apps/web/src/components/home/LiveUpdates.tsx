@@ -3,7 +3,12 @@ import React, { useEffect } from "react";
 import TextTransition from "./TextTransition";
 
 const LiveUpdates = () => {
-  const { data: updates } = trpc.landingPage.liveUpdates.useQuery();
+  const { data: updates } = trpc.landingPage.liveUpdates.useQuery(undefined, {
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    staleTime: 1000 * 60 * 60 * 24,
+  });
   const [index, setIndex] = React.useState(0);
 
   useEffect(() => {

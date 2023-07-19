@@ -5,7 +5,7 @@ import { trpc } from "@src/utils/trpc";
 import { ThemeProvider } from "next-themes";
 import Script from "next/script";
 import type { AppProps } from "next/app";
-import { Inter, Open_Sans, Poppins } from "next/font/google";
+import { Inter } from "next/font/google";
 import clsx from "clsx";
 import NProgress from "nprogress";
 import { Header, Footer } from "@src/components/layout";
@@ -22,7 +22,10 @@ const montserrat = Inter({
 const App = ({ Component, router, pageProps }: AppProps) => {
   const [loadingAnimationIsVisibile, setLoadingAnimationIsVisible] =
     useState(false);
+
   useEffect(() => {
+    document.documentElement.classList.add("scroll-smooth");
+
     router.events.on("routeChangeStart", () => {
       NProgress.start();
       setLoadingAnimationIsVisible(true);
@@ -35,13 +38,13 @@ const App = ({ Component, router, pageProps }: AppProps) => {
       NProgress.done();
       setLoadingAnimationIsVisible(false);
     });
-  }, []);
+  });
 
   return (
     <ThemeProvider attribute="class" defaultTheme="dark">
       <div
         className={clsx(
-          "flex flex-col justify-between w-full scroll-smooth overflow-hidden",
+          "flex flex-col justify-between w-full overflow-hidden",
           montserrat.className,
           {
             "dark:bg-coal": router.pathname !== "/",

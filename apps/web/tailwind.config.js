@@ -10,7 +10,7 @@ module.exports = {
     plugins: [],
     extend: {
       fontFamily: {
-        sans: ["Poppins", "Roboto", "Helvetica", "Arial", "sans-serif"],
+        sans: ["Inter", "Roboto", "Helvetica", "Arial", "sans-serif"],
       },
       colors: {
         luka: {

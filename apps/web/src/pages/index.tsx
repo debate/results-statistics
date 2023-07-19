@@ -117,6 +117,7 @@ const Home = ({
   useEffect(() => {
     setMounted(true);
   }, []);
+  const tools = useRef<HTMLDivElement | null>(null);
   const [emailModalActive, setEmailModalActive] = useState(false);
 
   const SEO_TITLE = "Debate Land";
@@ -177,6 +178,7 @@ const Home = ({
           <div
             id="hero-right"
             className="overflow-hidden h-full group hidden md:block rounded-lg cursor-pointer"
+            onClick={() => tools?.current?.scrollIntoView()}
           >
             <div className="min-w-[1200px]">
               <div className="relative pb-12 pl-4">
@@ -307,7 +309,7 @@ const Home = ({
           </div>
         </div>
       </section>
-      <section className="pt-20 xl:pt-32 relative" id="query-tools">
+      <section className="pt-20 xl:pt-32 relative" id="query-tools" ref={tools}>
         <span
           className="absolute w-full h-[70%] top-0 right-0 -z-10 bg-gradient-to-t from-sky-100 via-sky-100/90 dark:from-gray-900 dark:via-gray-900 dark:to-white/0"
           style={{
