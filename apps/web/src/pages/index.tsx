@@ -58,6 +58,8 @@ import { BiRadar } from "react-icons/bi";
 import { RiBodyScanLine } from "react-icons/ri";
 import { GiSundial } from "react-icons/gi";
 import QuickLinkGrid from "@src/components/home/QuickLinkGrid";
+import { trpc } from "@src/utils/trpc";
+import TextTransition from "@src/components/home/TextTransition";
 
 interface HomeSEOProps {
   title: string;
@@ -110,6 +112,14 @@ const Home = ({
   const isLarge = useMediaQuery({
     query: "(min-width: 768px)",
   });
+  const { data: updates } = trpc.landingPage.liveUpdates.useQuery();
+  const [index, setIndex] = React.useState(0);
+
+  useEffect(() => {
+    const intervalId = setInterval(() => setIndex((index) => index + 1), 3000);
+
+    return () => clearTimeout(intervalId);
+  }, []);
   const { theme } = useTheme();
   const router = useRouter();
   useEffect(() => {
@@ -167,9 +177,16 @@ const Home = ({
                     <span className="w-3 h-3 bg-gradient-to-r from-sky-400 via-purple-500 to-red-400 rounded-full animate-ping" />
                   </div>
                 </div>
-                <div className="flex space-x-1">
+                <div className="flex space-x-1 max-w-[300px] lg:max-w-[400px]">
                   <p>Live:</p>
-                  <p>Durham WS went 7-0 at Harvard</p>
+                  {updates ? (
+                    <TextTransition
+                      text={updates[index % updates.length]}
+                      springConfig="stiff"
+                      className="max-w-lg"
+                      inline
+                    />
+                  ) : undefined}
                 </div>
               </div>
               <button

@@ -170,6 +170,7 @@ model TournamentContact {
 model Tournament {
   id             Int                     @id @default(autoincrement())
   name           String
+  nickname       String?
   start          Int
   end            Int
   contacts       TournamentContact[]
