@@ -586,6 +586,12 @@ export const getStaticProps = async ({ preview = false }) => {
   await ssg.landingPage.liveUpdates.prefetch();
   await ssg.landingPage.otrData.prefetch();
   await ssg.landingPage.speakingData.prefetch();
+  await ssg.dataset.leaderboard.prefetch({
+    season: 2023,
+    circuit: 40,
+    page: 0,
+    limit: 10,
+  });
 
   return {
     props: {
