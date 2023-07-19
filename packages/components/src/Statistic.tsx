@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import React, { useState } from "react";
+import React, { ReactNode, useState } from "react";
 import Text from "./Text";
 import {
   Tooltip,
@@ -13,7 +13,7 @@ import { Balancer } from "react-wrap-balancer";
 export interface StatisticProps {
   value?: string | number;
   description: string;
-  tooltip?: string;
+  tooltip?: string | ReactNode;
   primary?: boolean;
   className?: {
     wrapper?: string;
@@ -95,23 +95,13 @@ const Statistic = ({
                   className?.description
                 )}
               >
-                <Balancer>
-                  {description}
-                  {tooltip && (
-                    <button
-                      onClick={() => setTooltipOpen(true)}
-                      className="hidden md:inline"
-                    >
-                      <BsQuestionCircle className="ml-1 -mt-0.5" />
-                    </button>
-                  )}
-                </Balancer>
+                <Balancer>{description}</Balancer>
               </Text>
             </div>
           </div>
         </TooltipTag>
         <TooltipContent>
-          <p>{tooltip}</p>
+          <p className="[&>a]:underline">{tooltip}</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>

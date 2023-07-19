@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-html-link-for-pages */
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { trpc } from "@src/utils/trpc";
@@ -131,18 +132,29 @@ const Judge = () => {
                 {
                   value: data ? data.index?.toFixed(1) : undefined,
                   description: "Judge Index",
+                  tooltip: (
+                    <>
+                      A total aggregate score of every round judged on the
+                      circuit. To learn more, click{" "}
+                      <a href="/methodology">here</a>.
+                    </>
+                  ),
                 },
                 {
                   value: data ? numRounds : undefined,
                   description: "Rounds",
+                  tooltip: "Number of rounds judged on the circuit.",
                 },
                 {
                   value: !isNaN(avgSpeaks) ? avgSpeaks : "--",
                   description: "Avg. Speaks",
+                  tooltip: "Average speaker points awarded on the circuit.",
                 },
                 {
                   value: !isNaN(avgStdSpeaks) ? avgStdSpeaks : "--",
                   description: "Avg. σ Speaks",
+                  tooltip:
+                    "How much the average number of points a judge awards varies from their average.",
                 },
               ]}
             />

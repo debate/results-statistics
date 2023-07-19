@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-html-link-for-pages */
 import React, { useState } from "react";
 import { useRouter } from "next/router";
 import { trpc } from "@src/utils/trpc";
@@ -142,18 +143,29 @@ const Team = () => {
                 {
                   value: data ? "#" + data.ranking.circuitRank : undefined,
                   description: "Team Rank",
+                  tooltip:
+                    "Team ranking on circuit/season combination in view.",
                 },
                 {
                   value: data
                     ? Math.round(data.statistics.otr * 100) / 100
                     : undefined,
                   description: "OTR Score",
+                  tooltip: (
+                    <>
+                      A total aggregate score of every round a team debated on
+                      the circuit. To learn more, click{" "}
+                      <a href="/methodology">here</a>.
+                    </>
+                  ),
                 },
                 {
                   value: data ? data.statistics.bids || "--" : undefined,
                   description: `TOC Bid${
                     (data?.statistics.bids || 2) > 1 ? "s" : ""
                   }`,
+                  tooltip:
+                    "Number of TOC bids acquired. Ghost bids are counted and silver bids are worth half.",
                 },
                 {
                   value: data
@@ -161,14 +173,15 @@ const Team = () => {
                       ? Math.round(data.statistics.avgSpeaks * 10) / 10
                       : "--"
                     : undefined,
-                  description: "Avg Raw Spks.",
+                  description: "Avg. Raw Spks.",
+                  tooltip: "Average of team speaker points.",
                 },
               ]}
               advanced={[
                 {
                   value: data?.results.length,
                   description: "Tourns.",
-                  tooltip: "Number of tournaments in view",
+                  tooltip: "Number of tournaments in view.",
                 },
                 {
                   value: data
@@ -178,47 +191,53 @@ const Team = () => {
                     : undefined,
                   description: "Avg. σ Speaks",
                   tooltip:
-                    "Avg. standard deviation of team avg. speaker points",
+                    "The average number of points a speaking result is from the average.",
                 },
                 {
                   value: data?.statistics.lastActive,
                   description: "Last Active",
-                  tooltip: "Time since last recorded tournament",
+                  tooltip: "Time since last recorded tournament.",
                 },
                 {
                   value: data ? data.statistics.inTop20Pct + "x" : undefined,
                   description: "Top 20% Seed",
                   tooltip:
-                    "# of times being in at least the 80th pctl. of the prelim pool",
+                    "# of times being in at least the 80th pctl. of the prelim pool.",
                 },
                 {
                   value: data?.statistics.avgOpWpM,
                   isPercentage: true,
                   round: 1,
                   description: "Avg. OpWpM",
-                  tooltip: "Avg. of tourn. avg. opponent prelim win %",
+                  tooltip:
+                    "The average prelim win percentage of all opponents faced. This indicates the strength of the teams faced.",
                 },
                 {
                   value: data?.statistics.pWp,
                   isPercentage: true,
                   round: 1,
                   description: "Prelim Win Pct.",
-                  tooltip: "% of all prelim rounds won",
+                  tooltip: "Percent of all prelim rounds won.",
                 },
                 {
                   value: data ? data.statistics.breakPct || "--" : undefined,
                   isPercentage: true,
                   round: 1,
                   description: "Break Pct.",
-                  tooltip: "% of tourns. reaching elim rounds (when possible)",
+                  tooltip: "% of tourns. reaching elim rounds (when possible).",
                 },
                 {
                   value: data?.statistics.tWp,
                   isPercentage: true,
                   round: 1,
                   description: "True Win Pct.",
-                  tooltip:
-                    "Win % accounting for added difficulty of elim rounds",
+                  tooltip: (
+                    <>
+                      A weighted composite of the elim and prelim win
+                      percentages. To learn more, click{" "}
+                      <a href="/methodology">here</a>.
+                    </>
+                  ),
                 },
               ]}
             />

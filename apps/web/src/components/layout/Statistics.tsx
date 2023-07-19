@@ -1,11 +1,11 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import { Statistic } from "@shared/components";
 import clsx from "clsx";
 
 interface RestrictedStatisticProp {
   value?: string | number;
   description: string;
-  tooltip?: string;
+  tooltip?: string | ReactNode;
   round?: number;
   isPercentage?: boolean;
 }
