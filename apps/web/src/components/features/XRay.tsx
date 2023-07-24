@@ -182,12 +182,14 @@ const XRay = () => {
           circuit: Yup.number().required("A circuit is required."),
           season: Yup.number().required("A season is required."),
         })}
-        onSubmit={async (values) => {
+        onSubmit={async ({ circuit, season, ...values }) => {
           if (!team1Value || !team2Value) return;
           router.push({
             pathname: "/x-ray/head-to-head",
             query: {
               ...values,
+              circuits: circuit,
+              seasons: season,
               team1: team1Value.teamId,
               team2: team2Value.teamId,
               judges: selectedJudges.map((judge) => judge.id).join(","),

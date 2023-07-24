@@ -44,8 +44,12 @@ const LeaderboardTable = ({ count, demo }: LeaderboardTableProps) => {
   const { query, isReady, ...router } = useRouter();
   const { data } = trpc.dataset.leaderboard.useQuery(
     {
-      season: demo?.season ?? parseInt(query.season as unknown as string),
-      circuit: demo?.circuit ?? parseInt(query.circuit as unknown as string),
+      season:
+        demo?.season ??
+        parseInt((query.seasons as unknown as string).split(",")[0]),
+      circuit:
+        demo?.circuit ??
+        parseInt((query.circuits as unknown as string).split(",")[0]),
       limit: pagination.pageSize,
       page: pagination.pageIndex,
     },

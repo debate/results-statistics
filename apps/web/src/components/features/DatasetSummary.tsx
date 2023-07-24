@@ -35,7 +35,7 @@ const DatasetSummary = (props: DatasetSummaryProps) => {
           schools competing in {props.numTourns} tournaments
           {["PublicForum", "LincolnDouglas", "Policy"].includes(
             props.event || ""
-          ) && `, amassing ${props.numBids} TOC bids.`}{" "}
+          ) && ` and amassing ${props.numBids} TOC bids.`}{" "}
           Teams achieved an average OTR (ranking metric) of{" "}
           {props.avgOtr?.toFixed(2)} while judges recieved an average index of{" "}
           {props.avgIndex?.toFixed(1)}, where 10 is a perfect track record. The

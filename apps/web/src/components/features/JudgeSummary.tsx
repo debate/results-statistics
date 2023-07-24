@@ -5,12 +5,14 @@ import React from "react";
 import { HiOutlineLightBulb } from "react-icons/hi";
 import { Event, Topic, TopicTag } from "@shared/database";
 import { Balancer } from "react-wrap-balancer";
+import _ from "lodash";
 
 interface JudgeSummaryProps {
   name?: string;
-  index?: number;
-  circuitName?: string;
-  event?: Event;
+  rank?: string;
+  circuits?: string[];
+  seasons?: number[];
+  events?: Event[];
   topics?: Topic[];
   topicTags?: TopicTag[];
   numRounds?: number;
@@ -27,21 +29,27 @@ const JudgeSummary = (props: JudgeSummaryProps) => {
     >
       <p className="mx-auto text-center">
         <Balancer>
-          {props.name || <Loader width={22} height={6} />} has a judge index of{" "}
-          {props.index ? (
-            props.index.toFixed(1)
-          ) : (
-            <Loader width={8} height={6} />
-          )}{" "}
-          on the{" "}
-          {props.circuitName?.toLowerCase() || <Loader width={14} height={6} />}{" "}
-          circuit for{" "}
-          {props.event ? (
-            getEnumName(props.event)
+          {props.name || <Loader width={22} height={6} />}{" "}
+          {props.rank ?? <Loader width={8} height={6} />} on the{" "}
+          {props.circuits ? (
+            getStringFromList(props.circuits.map((n) => n.toLowerCase()))
           ) : (
             <Loader width={14} height={6} />
           )}{" "}
-          debate. After filtering by{" "}
+          circuit{(props.circuits?.length || 1) > 1 ? "s" : ""} for{" "}
+          {props.events ? (
+            getStringFromList(_.uniq(props.events.map((e) => getEnumName(e)!)))
+          ) : (
+            <Loader width={14} height={6} />
+          )}{" "}
+          debate during the{" "}
+          {props.seasons ? (
+            getStringFromList(props.seasons.map((n) => n.toString()))
+          ) : (
+            <Loader width={14} height={6} />
+          )}{" "}
+          season{(props.seasons?.length || 1) > 1 ? "s" : ""}. After further
+          filtering by{" "}
           {props.topics ? (
             props.topics.length ? (
               `the following topics: ${getStringFromList(

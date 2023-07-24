@@ -48,13 +48,17 @@ const Statistic = ({
       <Tooltip open={tooltipOpen} onOpenChange={setTooltipOpen}>
         <TooltipTag {...(tooltip && { asChild: true })} className="relative">
           <div
-            className={clsx("flex flex-col", className?.wrapper, {
-              "h-full py-4 border-gray-300/40 md:border-r": primary,
-            })}
+            className={clsx(
+              "flex flex-col group/statistic",
+              className?.wrapper,
+              {
+                "h-full py-4 border-gray-300/40 md:border-r": primary,
+              }
+            )}
           >
             <div
               className={clsx(
-                "flex flex-col items-center justify-start min-w-full mx-auto my-auto !text-white",
+                "flex flex-col items-center justify-start min-w-full mx-auto my-auto !text-white md:group-hover/statistic:scale-110 transition-all",
                 {
                   "h-[3rem] md:h-[4rem] md:py-1 border-gray-300/40 border-r md:border-r-0":
                     primary,

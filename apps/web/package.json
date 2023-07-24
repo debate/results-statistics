@@ -27,6 +27,7 @@
     "@trpc/react": "^9.27.4",
     "@trpc/react-query": "^10.18.0",
     "@trpc/server": "^10.18.0",
+    "@types/d3": "^7.4.0",
     "@types/node": "18.15.7",
     "@types/nprogress": "^0.2.0",
     "@types/react": "18.0.29",

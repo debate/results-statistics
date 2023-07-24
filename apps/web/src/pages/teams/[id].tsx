@@ -1,5 +1,5 @@
 /* eslint-disable @next/next/no-html-link-for-pages */
-import React, { useState } from "react";
+import React, { useMemo } from "react";
 import { useRouter } from "next/router";
 import { trpc } from "@src/utils/trpc";
 import { TournamentHistoryTable } from "@src/components/tables/team";
@@ -18,22 +18,26 @@ import TeamInfoTable from "@src/components/tables/team/TeamInfoTable";
 import TeamDifferentialTable from "@src/components/tables/team/TeamDifferentialTable";
 import CommandBar from "@src/components/features/CommandBar";
 import { BiLinkExternal } from "react-icons/bi";
-import { Card, Loader } from "@shared/components";
-import { HiOutlineLightBulb } from "react-icons/hi";
-import getStringFromList from "@src/utils/get-string-from-list";
 import TeamSummary from "@src/components/features/TeamSummary";
 import NsdBadge from "@src/components/nsd-badge";
+import _ from "lodash";
+import getPercentile from "@src/utils/get-percentile";
+import boundPct from "@src/utils/bound-pct";
 
 const Team = () => {
   const { query, isReady, asPath, ...router } = useRouter();
   const { data } = trpc.team.summary.useQuery(
     {
       id: query.id as string,
-      ...(query.circuit && {
-        circuit: parseInt(query.circuit as unknown as string),
+      ...(query.circuits && {
+        circuits: (query.circuits as unknown as string)
+          .split(",")
+          .map((c) => parseInt(c)),
       }),
-      ...(query.season && {
-        season: parseInt(query.season as unknown as string),
+      ...(query.seasons && {
+        seasons: (query.seasons as unknown as string)
+          .split(",")
+          .map((c) => parseInt(c)),
       }),
       ...(query.topics && {
         topics: (query.topics as string).split(",").map((t) => parseInt(t)),
@@ -52,6 +56,33 @@ const Team = () => {
       staleTime: 1000 * 60 * 60 * 24,
     }
   );
+  const rankingData: [undefined | string, undefined | string] = useMemo(() => {
+    if (!data || (!data.ranking.targeted && !data.ranking.aggregated))
+      return [undefined, undefined];
+    if (data.ranking.targeted) {
+      return [
+        "#" + data.ranking.targeted.circuitRank,
+        data.ranking.targeted.otr.toFixed(1),
+      ];
+    } else if (data.ranking.aggregated) {
+      let rawAvg = _.round(
+        _.mean(data.ranking.aggregated.map((r) => r.otr)),
+        1
+      );
+      let avg = `${rawAvg >= 0 ? "+" : "-"}${rawAvg}`;
+      const pctl =
+        boundPct(
+          _.round(
+            getPercentile(
+              _.mean(data.ranking.aggregated.map((r) => r.z_score))
+            ) * 100,
+            1
+          )
+        ) + "%";
+      return [pctl, avg];
+    }
+    return [undefined, undefined];
+  }, [data]);
 
   const SEO_TITLE = `${data?.aliases[0]?.code || "--"}'s Profile — Debate Land`;
   const SEO_DESCRIPTION = `${
@@ -141,23 +172,42 @@ const Team = () => {
             <Statistics
               primary={[
                 {
-                  value: data ? "#" + data.ranking.circuitRank : undefined,
-                  description: "Team Rank",
-                  tooltip:
-                    "Team ranking on circuit/season combination in view.",
+                  value: rankingData[0],
+                  ...(data?.ranking?.aggregated
+                    ? {
+                        description: "Team Pctl. Rank",
+                        tooltip:
+                          "Team percentile ranking on circuit/season combination in view.",
+                      }
+                    : {
+                        description: "Team Rank",
+                        tooltip:
+                          "Team ranking on circuit/season combination in view.",
+                      }),
                 },
                 {
-                  value: data
-                    ? Math.round(data.statistics.otr * 100) / 100
-                    : undefined,
-                  description: "OTR Score",
-                  tooltip: (
-                    <>
-                      A total aggregate score of every round a team debated on
-                      the circuit. To learn more, click{" "}
-                      <a href="/methodology">here</a>.
-                    </>
-                  ),
+                  value: rankingData[1],
+                  ...(data?.ranking?.aggregated
+                    ? {
+                        description: "Avg. OTR Z-Score",
+                        tooltip: (
+                          <>
+                            The average number of std. deviations a team's OTR
+                            score is from the circuit mean. To learn more, click{" "}
+                            <a href="/methodology">here</a>.
+                          </>
+                        ),
+                      }
+                    : {
+                        description: "OTR Score",
+                        tooltip: (
+                          <>
+                            A total aggregate score of every round a team
+                            debated on the circuit. To learn more, click{" "}
+                            <a href="/methodology">here</a>.
+                          </>
+                        ),
+                      }),
                 },
                 {
                   value: data ? data.statistics.bids || "--" : undefined,
@@ -246,8 +296,27 @@ const Team = () => {
         />
         <TeamSummary
           code={data?.aliases[0]?.code}
-          rank={data?.ranking.circuitRank}
-          circuitName={data?.circuits[0].name}
+          rank={
+            data?.ranking.targeted
+              ? `is the ${rankingData[0]} team`
+              : `places above ${rankingData[0]} of teams`
+          }
+          circuits={
+            data
+              ? (data.ranking.targeted && [
+                  data.ranking.targeted.circuit.name,
+                ]) ||
+                (data.ranking.aggregated &&
+                  data.ranking.aggregated.map((r) => r.circuit_name))
+              : undefined
+          }
+          seasons={
+            data
+              ? (data.ranking.targeted && [data.ranking.targeted.seasonId]) ||
+                (data.ranking.aggregated &&
+                  _.uniq(data.ranking.aggregated.map((r) => r.season_id)))
+              : undefined
+          }
           event={data?.circuits[0].event}
           topics={data?.filter.topics}
           topicTags={data?.filter.topicTags}
@@ -273,8 +342,8 @@ const Team = () => {
 
 interface TeamParams extends ParsedUrlQuery {
   id: string;
-  circuit?: string;
-  season?: string;
+  circuits?: string;
+  seasons?: string;
   topics?: string;
   topicTags?: string;
 }
@@ -287,15 +356,15 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     },
   });
 
-  const { id, circuit, season, topics, topicTags } = ctx.query as TeamParams;
+  const { id, circuits, seasons, topics, topicTags } = ctx.query as TeamParams;
 
   await ssg.team.summary.prefetch({
     id,
-    ...(circuit && { circuit: parseInt(circuit) }),
-    ...(season && { season: parseInt(season) }),
-    ...(topics && { topics: topics?.split(",").map((t) => parseInt(t)) }),
+    ...(circuits && { circuit: circuits.split(",").map(parseInt) }),
+    ...(seasons && { season: seasons.split(",").map(parseInt) }),
+    ...(topics && { topics: topics?.split(",").map(parseInt) }),
     ...(topicTags && {
-      topicTags: topicTags?.split(",").map((t) => parseInt(t)),
+      topicTags: topicTags?.split(",").map(parseInt),
     }),
   });
 

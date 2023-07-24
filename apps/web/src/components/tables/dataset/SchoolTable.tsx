@@ -28,11 +28,11 @@ const SchoolTable = ({ count }: SchoolTableProps) => {
     pageIndex: 0,
     pageSize: 10,
   });
-  const { query, isReady, ...router } = useRouter();
+  const { query, isReady } = useRouter();
   const { data } = trpc.dataset.schools.useQuery(
     {
-      season: parseInt(query.season as unknown as string),
-      circuit: parseInt(query.circuit as unknown as string),
+      season: parseInt((query.seasons as unknown as string).split(",")[0]),
+      circuit: parseInt((query.circuits as unknown as string).split(",")[0]),
       limit: pagination.pageSize,
       page: pagination.pageIndex,
     },

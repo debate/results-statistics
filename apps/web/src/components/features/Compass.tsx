@@ -130,8 +130,8 @@ const Compass = () => {
           router.push({
             pathname: values.query ? "/search" : "/dataset",
             query: {
-              circuit: values.circuit,
-              season: values.season,
+              circuits: values.circuit,
+              seasons: values.season,
               ...(values.query && { query: values.query }),
             },
           });

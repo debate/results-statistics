@@ -112,6 +112,7 @@ export default function TournamentCombobox({
                           selected ? "font-medium" : "font-normal"
                         }`}
                       >
+                        {new Date(result.date).getMonth() + 1}/
                         {new Date(result.date).getFullYear()}: {result.name}
                       </span>
                       {selected ? (

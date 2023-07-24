@@ -28,8 +28,8 @@ const Dataset = () => {
   const { query, isReady, asPath } = useRouter();
   const { data } = trpc.dataset.summary.useQuery(
     {
-      circuit: parseInt(query.circuit as string),
-      season: parseInt(query.season as string),
+      circuit: parseInt((query.circuits as string).split(",")[0]),
+      season: parseInt((query.seasons as string).split(",")[0]),
     },
     {
       enabled: isReady,
@@ -40,9 +40,9 @@ const Dataset = () => {
     }
   );
 
-  const label = `${query.season as string} ${data?.circuit?.name} ${getEnumName(
-    data?.circuit?.event
-  )}`;
+  const label = `${query.seasons as string} ${
+    data?.circuit?.name
+  } ${getEnumName(data?.circuit?.event)}`;
 
   const SEO_TITLE = `${label} Dataset — Debate Land`;
   const SEO_DESCRIPTION = `The latest ${label} dataset, exclusively on Debate Land.`;
@@ -225,7 +225,7 @@ const Dataset = () => {
         />
         <DatasetSummary
           event={data?.circuit?.event}
-          season={parseInt(query.season as string)}
+          season={parseInt(query.seasons as string)}
           circuit={data?.circuit?.name}
           numTourns={data?.numTournaments}
           numTeams={data?.numTeams}
@@ -258,8 +258,8 @@ const Dataset = () => {
 };
 
 interface DatasetParams extends ParsedUrlQuery {
-  circuit: string;
-  season: string;
+  circuits: string;
+  seasons: string;
 }
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
@@ -270,11 +270,11 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     },
   });
 
-  const { circuit, season } = ctx.query as DatasetParams;
+  const { circuits, seasons } = ctx.query as DatasetParams;
 
   await ssg.dataset.summary.prefetch({
-    circuit: parseInt(circuit),
-    season: parseInt(season),
+    circuit: parseInt(circuits.split(",")[0]),
+    season: parseInt(seasons.split(",")[0]),
   });
 
   return {
