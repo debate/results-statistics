@@ -4,6 +4,7 @@ import * as cheerio from 'cheerio';
 import db from '@src/services/db.service';
 import { JudgeRanking, TeamRanking } from '@shared/database';
 import batchPromises from '@src/utils/batch-promises';
+import getId from '@src/utils/get-id';
 
 export interface TournamentSearchResult {
   id: number;
@@ -252,16 +253,16 @@ const scrapingRouter = router({
             }
           }
         });
-        judgeNames.push(names.join(' '))
+        judgeNames.push(getId(names))
       });
 
-      const getRank = async (judgeId: string) => {
         const circuitRank = await (await db).query(`
           SELECT * FROM (
             SELECT
               RANK() OVER (ORDER BY \`index\` DESC, t.numRounds DESC) AS circuitRank,
               \`index\`,
-              judge_id
+              judge_id,
+              name
             FROM (
               SELECT DISTINCT
                 judge_rankings.judge_id,
@@ -292,44 +293,45 @@ const scrapingRouter = router({
                 judge_rankings.circuit_id = ? AND
                 judge_rankings.season_id = ?
               ) t
-            ) q WHERE q.judge_id = ?;
-        `, [input.circuitId, input.seasonId, input.circuitId, input.seasonId, judgeId]) as unknown as [
+            ) q
+          WHERE q.judge_id IN (${judgeNames.map(n => `'${n}'`).join(',')})
+          ORDER BY circuitRank DESC;
+        `, [input.circuitId, input.seasonId, input.circuitId, input.seasonId]) as unknown as [
             (JudgeRanking & { circuitRank: number })[],
             object[],
           ];
-        return circuitRank[0][0];
-      };
+      return circuitRank[0];
 
-      const judges = await batchPromises(judgeNames.map(async (name, idx) => {
-        const judge = await prisma.judge.findFirst({
-          where: {
-            name: {
-              equals: name
-            }
-          },
-          include: {
-            results: true,
-          }
-        });
+      // const judges = await batchPromises(judgeNames.map(async (name, idx) => {
+      //   const judge = await prisma.judge.findFirst({
+      //     where: {
+      //       name: {
+      //         equals: name
+      //       }
+      //     },
+      //     include: {
+      //       results: true,
+      //     }
+      //   });
 
-        if (judge) {
-          const rank = await getRank(judge.id);
-          return { ...judge, rank: rank ? rank : null}
-        }
-      }), 50);
+      //   if (judge) {
+      //     const rank = await getRank(judge.id);
+      //     return { ...judge, rank: rank ? rank : null}
+      //   }
+      // }), 50);
 
-      type Judge = typeof judges[0];
+      // type Judge = typeof judges[0];
 
-      const judgesWithCodes = judges.map((judge, idx) => ({ ...judge, name: judgeNames[idx] })) as (Judge & { name: string })[];
+      // const judgesWithCodes = judges.map((judge, idx) => ({ ...judge, name: judgeNames[idx] })) as (Judge & { name: string })[];
 
-      return [
-        ...judgesWithCodes
-          .filter(t => !!t.id)
-          .sort((a, b) => (a?.rank?.circuitRank || Infinity) - (b?.rank?.circuitRank || Infinity)),
-        ...judgesWithCodes
-          .filter(t => !t.id)
-      ];
-    })
+      // return [
+      //   ...judgesWithCodes
+      //     .filter(t => !!t.id)
+      //     .sort((a, b) => (a?.rank?.circuitRank || Infinity) - (b?.rank?.circuitRank || Infinity)),
+      //   ...judgesWithCodes
+      //     .filter(t => !t.id)
+      // ];
+    }),
 });
 
 export default scrapingRouter;

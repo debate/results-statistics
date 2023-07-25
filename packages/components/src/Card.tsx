@@ -48,7 +48,7 @@ const Card = ({
           <CollapsibleTrigger asChild>
             <HeaderTag
               className={clsx(
-                "w-full flex justify-between items-center p-1 group",
+                "w-full flex justify-between items-start p-1 group",
                 {
                   "cursor-pointer rounded-lg": collapsible,
                   "hover:bg-gray-400/10 active:bg-gray-400/20 dark:active:bg-gray-400/20 dark:hover:bg-gray-400/10":
