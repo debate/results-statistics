@@ -49,7 +49,9 @@ const StrikeTable = ({ data }: StrikeTableProps) => {
     pageIndex: 0,
     pageSize: 25,
   });
-  const [highlightedRows, setHighlightedRows] = useState<number[]>([]);
+  const [highlightedRows, setHighlightedRows] = useState<number[]>([
+    0, 1, 2, 3, 4,
+  ]);
 
   const StrikeMenu = useCallback(
     () => (
@@ -74,8 +76,8 @@ const StrikeTable = ({ data }: StrikeTableProps) => {
           setHighlightedRows(indexes);
         }}
         initialValues={{
-          percent: 5,
-          number: null,
+          percent: null,
+          number: 5,
         }}
         validationSchema={Yup.object().shape({
           percent: Yup.number()
@@ -95,6 +97,7 @@ const StrikeTable = ({ data }: StrikeTableProps) => {
             <Text className="text-sm md:text-base">Strike</Text>
             <Input
               name="percent"
+              value={props.values.percent}
               onChange={(e) => {
                 props.handleChange(e);
                 props.submitForm();
@@ -108,6 +111,7 @@ const StrikeTable = ({ data }: StrikeTableProps) => {
             />
             <Input
               name="number"
+              value={props.values.number}
               onChange={(e) => {
                 props.handleChange(e);
                 props.handleSubmit();

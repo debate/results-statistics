@@ -15,7 +15,7 @@ import {
   Select,
   Label,
 } from "@shared/components";
-import { Event, Judge } from "@shared/database";
+import { Event } from "@shared/database";
 import { useRouter } from "next/router";
 import { trpc } from "@src/utils/trpc";
 import { Formik, FormikProps } from "formik";

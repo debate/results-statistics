@@ -219,8 +219,8 @@ const HeadToHead = () => {
                     push({
                       pathname: `/teams/${query.team1}`,
                       query: {
-                        circuit: query.circuit,
-                        season: query.season,
+                        circuits: query.circuit,
+                        seasons: query.season,
                       },
                     })
                   }
@@ -235,8 +235,8 @@ const HeadToHead = () => {
                     push({
                       pathname: `/teams/${query.team2}`,
                       query: {
-                        circuit: query.circuit,
-                        season: query.season,
+                        circuits: query.circuit,
+                        seasons: query.season,
                       },
                     })
                   }
