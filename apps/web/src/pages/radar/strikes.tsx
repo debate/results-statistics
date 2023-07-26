@@ -67,7 +67,7 @@ const StrikeSheet = () => {
       />
       <div className="min-h-screen">
         <Overview
-          label="Threat Sheet"
+          label="Strike Sheet"
           heading={metadata?.name}
           subtitle={metadata?.location}
           underview={<></>}

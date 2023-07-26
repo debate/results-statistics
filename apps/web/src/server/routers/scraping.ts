@@ -226,7 +226,6 @@ const scrapingRouter = router({
       circuitId: z.number()
     }))
     .query(async ({ input, ctx }) => {
-      const { prisma } = ctx;
       const tabroomResponse = await fetch(`https://www.tabroom.com/index/tourn/judges.mhtml?category_id=${input.poolId}&tourn_id=${input.tournId}`)
       .then(res => res.text());
       const $ = cheerio.load(tabroomResponse);
@@ -332,6 +331,47 @@ const scrapingRouter = router({
       //     .filter(t => !t.id)
       // ];
     }),
+  strikeDetails: procedure
+    .input(z.object({
+      judges: z.array(z.string()),
+      season: z.number().optional(),
+      circuit: z.number().optional(),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const { prisma } = ctx;
+      return Promise.all(input.judges.map((judgeId) =>
+        prisma.judgeTournamentResult.aggregate({
+          where: {
+            judgeId,
+            tournament: {
+              ...(input.circuit && {
+                circuits: {
+                  some: {
+                    id: input.circuit
+                  }
+                }
+              }),
+              ...(input.season && {
+                seasonId: input.season
+              })
+            }
+          },
+          _sum: {
+            numAff: true,
+            numPro: true,
+            numNeg: true,
+            numCon: true
+          },
+          _avg: {
+            numSquirrels: true,
+            numPrelimScrews: true,
+            stdDevPoints: true,
+            avgRawPoints: true,
+          },
+          _count: true
+        }).then(result => ({...result, judgeId}))
+      ))
+    })
 });
 
 export default scrapingRouter;
