@@ -307,7 +307,7 @@ const scrapingRouter = router({
                 judge_rankings.season_id = ?
               ) t
             ) q
-          WHERE q.judge_id IN (${judgeNames.map(n => `'${n}'`).join(',')})
+          WHERE q.judgeId IN (${judgeNames.map(n => `'${n}'`).join(',')})
           ORDER BY circuitRank DESC;
         `, [input.circuitId, input.seasonId, input.circuitId, input.seasonId]) as unknown as [
           ({ circuitRank: number; index: number; judgeId: string; name: string })[],

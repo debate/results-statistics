@@ -75,8 +75,7 @@ const Team = () => {
           _.round(
             getPercentile(
               _.mean(data.ranking.aggregated.map((r) => r.z_score))
-            ) * 100,
-            1
+            ) * 100
           )
         ) + "%";
       return [pctl, avg];

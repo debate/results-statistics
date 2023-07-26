@@ -65,7 +65,7 @@ const Judge = () => {
       ];
     } else if (data.ranking.aggregated) {
       let rawAvg = _.round(
-        _.mean(data.ranking.aggregated.map((r) => r.index)),
+        _.mean(data.ranking.aggregated.map((r) => r.z_score)),
         1
       );
       let avg = `${rawAvg >= 0 ? "+" : "-"}${rawAvg}`;
@@ -74,8 +74,7 @@ const Judge = () => {
           _.round(
             getPercentile(
               _.mean(data.ranking.aggregated.map((r) => r.z_score))
-            ) * 100,
-            1
+            ) * 100
           )
         ) + "%";
       return [pctl, avg];

@@ -195,17 +195,34 @@ const judgeRouter = router({
         const targeted = (await (await db).query(`
             SELECT * FROM (
               SELECT
-                RANK() OVER (ORDER BY \`index\` DESC) AS circuitRank,
+                RANK() OVER (ORDER BY \`index\` DESC, t.numRounds DESC) AS circuitRank,
                 judge_id,
                 \`index\`
               FROM
                 judge_rankings
+              INNER JOIN judges ON judge_rankings.judge_id = judges.id
+              INNER JOIN (
+                SELECT
+                  judgeId,
+                  COUNT(*) / 2 as numRounds
+                FROM _JudgeRecordToRound jrtr
+                INNER JOIN judge_records jr ON jrtr.A = jr.id
+                INNER JOIN tournaments t ON jr.tournamentId = t.id
+                WHERE
+                  t.id IN (
+                    SELECT ctt.B
+                    FROM _CircuitToTournament ctt
+                    WHERE ctt.A = ?
+                  ) AND
+                  t.season_id = ?
+                GROUP BY judgeId
+              ) as t ON judge_rankings.judge_id = t.judgeId
               WHERE
                 circuit_id = ? AND
                 season_id = ?
             ) t
             WHERE judge_id = ?;
-          `, [input.circuits![0], input.seasons![0], input.id]) as unknown as [
+          `, [input.circuits![0], input.seasons![0], input.circuits![0], input.seasons![0], input.id]) as unknown as [
             TargetedJudgeRanking[],
             object[],
           ])[0][0];
