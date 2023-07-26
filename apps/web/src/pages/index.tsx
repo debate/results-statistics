@@ -239,7 +239,7 @@ const Home = ({
         <h3 className="max-w-96 text-xl mx-auto">Backed by the best</h3>
         <div className="my-4 mx-auto flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-4">
           <div className="flex mx-auto space-x-4">
-            <Link href="https://www.nsdebatecamp.com/" className="my-auto">
+            <Link href="https://link.debate.land/nsd" className="my-auto">
               <Image
                 src={theme === "dark" ? NSDDarkLogo : NSDLightLogo}
                 alt="NSD"

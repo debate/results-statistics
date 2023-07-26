@@ -70,7 +70,7 @@ const Judge = () => {
         _.mean(data.ranking.aggregated.map((r) => r.z_score)),
         1
       );
-      let avg = `${rawAvg >= 0 ? "+" : "-"}${rawAvg}`;
+      let avg = `${rawAvg >= 0 ? "+" : ""}${rawAvg}`;
       const pctl =
         boundPct(
           _.round(
