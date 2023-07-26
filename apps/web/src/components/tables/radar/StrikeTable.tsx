@@ -15,7 +15,7 @@ import { useRouter } from "next/router";
 interface JudgeRanking {
   circuitRank: number;
   index: number;
-  judge_id: string;
+  judgeId: string;
   name: string;
 }
 
@@ -53,7 +53,7 @@ const StrikeTable = ({ data: baseStrikes }: StrikeTableProps) => {
   const updateData = useCallback(async () => {
     const detailedStrikes = await getDetailedStrikes({
       judges: baseStrikes
-        .map((s) => s.judge_id)
+        .map((s) => s.judgeId)
         .slice(
           pagination.pageIndex * pagination.pageSize,
           (pagination.pageIndex + 1) * pagination.pageSize
@@ -61,7 +61,7 @@ const StrikeTable = ({ data: baseStrikes }: StrikeTableProps) => {
     });
     setData(
       detailedStrikes?.map((s) => {
-        const baseStrike = baseStrikes.find((_s) => _s.judge_id === s.judgeId)!;
+        const baseStrike = baseStrikes.find((_s) => _s.judgeId === s.judgeId)!;
         return { ...s, ...baseStrike };
       })
     );
@@ -241,7 +241,7 @@ const StrikeTable = ({ data: baseStrikes }: StrikeTableProps) => {
             (baseStrikes?.length || 1) / pagination.pageSize
           ),
         }}
-        onRowClick={(judge) => router.push(`/judges/${judge.judge_id}`)}
+        onRowClick={(judge) => router.push(`/judges/${judge.judgeId}`)}
       />
     </Card>
   );

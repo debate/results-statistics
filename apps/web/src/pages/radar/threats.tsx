@@ -78,14 +78,7 @@ const ThreatSheet = () => {
           title="Field Analytics"
           className="max-w-[800px] mx-auto my-4 md:my-8 relative"
         >
-          <Histogram
-            data={
-              (teamData
-                ?.map((d) => d.rank?.otr)
-                .filter((o) => !!o) as number[]) || []
-            }
-            dataType="OTR"
-          />
+          <Histogram data={teamData?.map((d) => d.otr) || []} dataType="OTR" />
         </Card>
         <ThreatTable
           data={teamData || []}
