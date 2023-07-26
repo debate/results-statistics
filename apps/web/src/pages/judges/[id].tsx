@@ -22,6 +22,8 @@ import CommandBar from "@src/components/features/CommandBar";
 import JudgeSummary from "@src/components/features/JudgeSummary";
 import boundPct from "@src/utils/bound-pct";
 import getPercentile from "@src/utils/get-percentile";
+import getFilterSummary from "@src/utils/get-filter-summary";
+import getStringFromList from "@src/utils/get-string-from-list";
 
 const Judge = () => {
   const { query, isReady, asPath } = useRouter();
@@ -152,9 +154,15 @@ const Judge = () => {
                   judgeId: data?.id,
                 }}
               >
-                {getEnumName(data.rankings[0].circuit.event)} |{" "}
-                {data.rankings[0].circuit.name} |{" "}
-                {query.season || "All Seasons"}
+                {getFilterSummary(
+                  data.rankings.map((r) => r.circuit.event),
+                  data.rankings.map((r) => r.circuit.name),
+                  !!query.seasons
+                    ? (query.seasons as string)
+                        .split(",")
+                        .map((s) => parseInt(s))
+                    : undefined
+                )}
               </CommandBar>
             ) : undefined
           }
@@ -218,7 +226,7 @@ const Judge = () => {
           rank={
             data?.ranking.targeted
               ? `is the ${rankingData[0]} judge`
-              : `places above ${rankingData[0]} of judges`
+              : `places above ${rankingData[0]} of judges (by index)`
           }
           circuits={
             data

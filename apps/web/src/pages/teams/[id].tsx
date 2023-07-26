@@ -23,6 +23,7 @@ import NsdBadge from "@src/components/nsd-badge";
 import _ from "lodash";
 import getPercentile from "@src/utils/get-percentile";
 import boundPct from "@src/utils/bound-pct";
+import getFilterSummary from "@src/utils/get-filter-summary";
 
 const Team = () => {
   const { query, isReady, asPath, ...router } = useRouter();
@@ -162,8 +163,15 @@ const Team = () => {
                   teamId: data?.id,
                 }}
               >
-                {getEnumName(data.circuits[0].event)} | {data.circuits[0].name}{" "}
-                | {data.seasons[0].id.toString()}
+                {getFilterSummary(
+                  data.circuits.map((c) => c.event),
+                  data.circuits.map((c) => c.name),
+                  !!query.seasons
+                    ? (query.seasons as string)
+                        .split(",")
+                        .map((s) => parseInt(s))
+                    : undefined
+                )}
               </CommandBar>
             ) : undefined
           }
