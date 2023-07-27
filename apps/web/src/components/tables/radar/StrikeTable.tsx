@@ -242,6 +242,7 @@ const StrikeTable = ({ data: baseStrikes }: StrikeTableProps) => {
           ),
         }}
         onRowClick={(judge) => router.push(`/judges/${judge.judgeId}`)}
+        numLoadingRows={10}
       />
     </Card>
   );

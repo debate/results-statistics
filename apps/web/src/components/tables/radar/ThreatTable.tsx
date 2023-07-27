@@ -179,6 +179,7 @@ const ThreatTable = ({ data: baseThreats, ...props }: ThreatTableProps) => {
           totalPages: Math.ceil(baseThreats.length / pagination.pageSize),
         }}
         onRowClick={(team) => router.push(`/teams/${team.teamId}`)}
+        numLoadingRows={10}
       />
     </Card>
   );
