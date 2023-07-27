@@ -67,7 +67,7 @@ const StrikeSheet = () => {
       />
       <div className="min-h-screen">
         <Overview
-          label="Threat Sheet"
+          label="Strike Sheet"
           heading={metadata?.name}
           subtitle={metadata?.location}
           underview={<></>}
@@ -78,11 +78,7 @@ const StrikeSheet = () => {
           className="max-w-[800px] mx-auto my-4 md:my-8 relative"
         >
           <Histogram
-            data={
-              (judgeData
-                ?.map((d) => d.rank?.index)
-                .filter((o) => !!o) as number[]) || []
-            }
+            data={judgeData?.map((j) => j.index) || []}
             dataType="Index"
           />
         </Card>

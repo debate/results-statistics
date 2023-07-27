@@ -36,7 +36,7 @@ const Card = ({
     <div
       className={clsx(
         className,
-        "rounded-md md:border border-gray-400/50 backdrop-blur-3xl mx-4 md:mx-auto"
+        "rounded-md md:border border-gray-400/50 backdrop-blur-3xl"
       )}
       {...props}
     >
@@ -60,7 +60,7 @@ const Card = ({
                 as="h3"
                 className={clsx(
                   theme || "text-luka-200 dark:text-blue-600",
-                  "bold flex items-center text-2xl sm:text-3xl"
+                  "font-semibold flex items-center text-2xl sm:text-3xl"
                 )}
               >
                 {icon}

@@ -15,7 +15,7 @@ import {
   Select,
   Label,
 } from "@shared/components";
-import { Event, Judge } from "@shared/database";
+import { Event } from "@shared/database";
 import { useRouter } from "next/router";
 import { trpc } from "@src/utils/trpc";
 import { Formik, FormikProps } from "formik";
@@ -167,8 +167,8 @@ const XRay = () => {
     <Card
       icon={<RiBodyScanLine />}
       title="X-Ray"
-      theme="text-blue-400"
-      className="min-w-full md:min-w-[300px] max-w-[800px] m-10 mx-auto bg-sky-100 dark:bg-black shadow-2xl shadow-sky-400/70 dark:shadow-blue-400/50 p-2"
+      theme="text-violet-400"
+      className="bg-sky-100 dark:bg-black shadow-2xl shadow-sky-400/70 dark:shadow-violet-400/50 p-2"
     >
       <Formik
         innerRef={formikRef}
@@ -182,12 +182,14 @@ const XRay = () => {
           circuit: Yup.number().required("A circuit is required."),
           season: Yup.number().required("A season is required."),
         })}
-        onSubmit={async (values) => {
+        onSubmit={async ({ circuit, season, ...values }) => {
           if (!team1Value || !team2Value) return;
           router.push({
             pathname: "/x-ray/head-to-head",
             query: {
               ...values,
+              circuits: circuit,
+              seasons: season,
               team1: team1Value.teamId,
               team2: team2Value.teamId,
               judges: selectedJudges.map((judge) => judge.id).join(","),

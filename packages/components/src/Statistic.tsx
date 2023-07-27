@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import React, { useState } from "react";
+import React, { ReactNode, useState } from "react";
 import Text from "./Text";
 import {
   Tooltip,
@@ -13,7 +13,7 @@ import { Balancer } from "react-wrap-balancer";
 export interface StatisticProps {
   value?: string | number;
   description: string;
-  tooltip?: string;
+  tooltip?: string | ReactNode;
   primary?: boolean;
   className?: {
     wrapper?: string;
@@ -48,13 +48,17 @@ const Statistic = ({
       <Tooltip open={tooltipOpen} onOpenChange={setTooltipOpen}>
         <TooltipTag {...(tooltip && { asChild: true })} className="relative">
           <div
-            className={clsx("flex flex-col", className?.wrapper, {
-              "h-full py-4 border-gray-300/40 md:border-r": primary,
-            })}
+            className={clsx(
+              "flex flex-col group/statistic",
+              className?.wrapper,
+              {
+                "h-full py-4 border-gray-300/40 md:border-r": primary,
+              }
+            )}
           >
             <div
               className={clsx(
-                "flex flex-col items-center justify-start min-w-full mx-auto my-auto !text-white",
+                "flex flex-col items-center justify-start min-w-full mx-auto my-auto !text-white md:group-hover/statistic:scale-110 transition-all",
                 {
                   "h-[3rem] md:h-[4rem] md:py-1 border-gray-300/40 border-r md:border-r-0":
                     primary,
@@ -66,7 +70,7 @@ const Statistic = ({
               <Text
                 className={clsx(
                   {
-                    "font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-sky-400":
+                    "font-semibold text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-sky-400":
                       primary && value !== undefined,
                     "bg-gray-300/40 dark:bg-gray-700/40 animate-pulse rounded":
                       value === undefined,
@@ -95,23 +99,13 @@ const Statistic = ({
                   className?.description
                 )}
               >
-                <Balancer>
-                  {description}
-                  {tooltip && (
-                    <button
-                      onClick={() => setTooltipOpen(true)}
-                      className="hidden md:inline"
-                    >
-                      <BsQuestionCircle className="ml-1 -mt-0.5" />
-                    </button>
-                  )}
-                </Balancer>
+                <Balancer>{description}</Balancer>
               </Text>
             </div>
           </div>
         </TooltipTag>
         <TooltipContent>
-          <p>{tooltip}</p>
+          <p className="[&>a]:underline">{tooltip}</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>

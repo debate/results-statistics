@@ -32,12 +32,12 @@ const Header = ({ router }: any) => {
         href="/"
       >
         <Image src={Logo32} draggable={false} alt="Debate Land" />
-        <Text className="mt-[1px] !text-white md:text-xl font-extrabold">
+        <Text className="mt-[1px] !text-white md:text-xl font-semibold">
           Debate Land
         </Text>
         <div className="absolute -top-2 -right-3 bg-gray-50/80 rounded-full ">
           <Text className="px-1 text-sm lowercase bg-gradient-to-r from-sky-400 via-purple-500 to-red-400 bg-clip-text text-transparent">
-            Beta 0.5
+            Beta 0.6
           </Text>
         </div>
       </a>
@@ -48,7 +48,7 @@ const Header = ({ router }: any) => {
 				<Link primary href="/#api" text="API" className={headerTextStyle} wrapperClassName={headerWrapperStyle} /> */}
         <span className="w-2" />
         <Button
-          icon={theme === "dark" ? <FaSun /> : <FaMoon />}
+          icon={!theme || theme === "dark" ? <FaSun /> : <FaMoon />}
           className="!bg-indigo-300"
           title="Toggle Theme"
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}

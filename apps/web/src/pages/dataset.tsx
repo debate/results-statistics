@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-html-link-for-pages */
 import { NextSeo } from "next-seo";
 import React from "react";
 import { trpc } from "@src/utils/trpc";
@@ -27,8 +28,8 @@ const Dataset = () => {
   const { query, isReady, asPath } = useRouter();
   const { data } = trpc.dataset.summary.useQuery(
     {
-      circuit: parseInt(query.circuit as string),
-      season: parseInt(query.season as string),
+      circuit: parseInt((query.circuits as string).split(",")[0]),
+      season: parseInt((query.seasons as string).split(",")[0]),
     },
     {
       enabled: isReady,
@@ -39,9 +40,9 @@ const Dataset = () => {
     }
   );
 
-  const label = `${query.season as string} ${data?.circuit?.name} ${getEnumName(
-    data?.circuit?.event
-  )}`;
+  const label = `${query.seasons as string} ${
+    data?.circuit?.name
+  } ${getEnumName(data?.circuit?.event)}`;
 
   const SEO_TITLE = `${label} Dataset — Debate Land`;
   const SEO_DESCRIPTION = `The latest ${label} dataset, exclusively on Debate Land.`;
@@ -85,6 +86,7 @@ const Dataset = () => {
                       : data.numTournaments
                     : undefined,
                   description: "Tourns.",
+                  tooltip: "Number of tournaments in dataset.",
                 },
                 {
                   value: data
@@ -93,6 +95,7 @@ const Dataset = () => {
                       : data.numTeams
                     : undefined,
                   description: "Teams",
+                  tooltip: "Number of teams in dataset.",
                 },
                 {
                   value: data
@@ -101,6 +104,7 @@ const Dataset = () => {
                       : data.numSchools
                     : undefined,
                   description: "Schools",
+                  tooltip: "Number of schools in dataset.",
                 },
                 {
                   value: data
@@ -111,6 +115,8 @@ const Dataset = () => {
                       : data.numBids
                     : undefined,
                   description: "Bids",
+                  tooltip:
+                    "Total number of bids from teams in the dataset. Ghost bids are counted and silver bids are worth half.",
                 },
               ]}
               advanced={[
@@ -121,6 +127,7 @@ const Dataset = () => {
                       : data.numCompetitors
                     : undefined,
                   description: "Competitors",
+                  tooltip: "Total number of competitors in the dataset.",
                 },
                 {
                   value: data
@@ -129,12 +136,20 @@ const Dataset = () => {
                       : data.numJudges
                     : undefined,
                   description: "Judges",
+                  tooltip: "Total number of judges in the dataset.",
                 },
                 {
                   value: data
                     ? _.mean(data.chartData.otr.map((e) => e.otr)).toFixed(2)
                     : undefined,
                   description: "Avg. OTR",
+                  tooltip: (
+                    <>
+                      Average OTR (aggregate performance score) of teams in the
+                      dataset. For more information, click{" "}
+                      <a href="/methodology">here</a>.
+                    </>
+                  ),
                 },
                 {
                   value: data
@@ -143,6 +158,13 @@ const Dataset = () => {
                       )
                     : undefined,
                   description: "Avg. Index",
+                  tooltip: (
+                    <>
+                      Average Index (aggregate performance score) of judges in
+                      the dataset. For more information, click{" "}
+                      <a href="/methodology">here</a>.
+                    </>
+                  ),
                 },
                 {
                   value: data
@@ -151,6 +173,7 @@ const Dataset = () => {
                       ).toFixed(1)
                     : undefined,
                   description: "Avg. Speaks",
+                  tooltip: "Average speaker points of teams in the dataset.",
                 },
                 {
                   value: data
@@ -159,6 +182,8 @@ const Dataset = () => {
                       ).toFixed(1)
                     : undefined,
                   description: "Avg. σ Speaks",
+                  tooltip:
+                    "The average number of points a team's speaking result is from their average (averaged for all teams in the dataset).",
                 },
                 {
                   value: data
@@ -170,6 +195,8 @@ const Dataset = () => {
                       ).toFixed(1)
                     : undefined,
                   description: "Avg. Screws & Squirrels",
+                  tooltip:
+                    "The average number of squirrels and screws a judge has per tournament (averaged for all judges in the dataset).",
                 },
                 {
                   value: data
@@ -189,6 +216,8 @@ const Dataset = () => {
                       ).toFixed(1) + "%"
                     : undefined,
                   description: "Pct. Pro / Aff",
+                  tooltip:
+                    "The average percent a judge votes for the Pro / Aff team (averaged for all judges in the dataset).",
                 },
               ]}
             />
@@ -196,7 +225,7 @@ const Dataset = () => {
         />
         <DatasetSummary
           event={data?.circuit?.event}
-          season={parseInt(query.season as string)}
+          season={parseInt(query.seasons as string)}
           circuit={data?.circuit?.name}
           numTourns={data?.numTournaments}
           numTeams={data?.numTeams}
@@ -229,8 +258,8 @@ const Dataset = () => {
 };
 
 interface DatasetParams extends ParsedUrlQuery {
-  circuit: string;
-  season: string;
+  circuits: string;
+  seasons: string;
 }
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
@@ -241,11 +270,11 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     },
   });
 
-  const { circuit, season } = ctx.query as DatasetParams;
+  const { circuits, seasons } = ctx.query as DatasetParams;
 
   await ssg.dataset.summary.prefetch({
-    circuit: parseInt(circuit),
-    season: parseInt(season),
+    circuit: parseInt(circuits.split(",")[0]),
+    season: parseInt(seasons.split(",")[0]),
   });
 
   return {

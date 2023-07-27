@@ -9,7 +9,7 @@ import Image from "next/image";
 import { useMediaQuery } from "react-responsive";
 import { Compass, Telescope, Radar, XRay } from "@src/components/features";
 import { NextSeo } from "next-seo";
-import { FaLock, FaSearch } from "react-icons/fa";
+import { FaCompass, FaLock, FaRegCompass, FaSearch } from "react-icons/fa";
 import MobileGraphicLeaderboard from "../../public/assets/img/mobile_graphic_leaderboard.png";
 import MobileGraphicTeamPage from "../../public/assets/img/mobile_graphic_team_page.png";
 import WebGraphicDark from "../../public/assets/img/web_graphic_dark.png";
@@ -32,6 +32,12 @@ import ResendLightLogo from "../../public/assets/img/resend-light.svg";
 import ResendDarkLogo from "../../public/assets/img/resend-dark.svg";
 import PlanetScaleLightLogo from "../../public/assets/img/planetscale-light.svg";
 import PlanetScaleDarkLogo from "../../public/assets/img/planetscale-dark.svg";
+import DatasetDark from "../../public/assets/img/dataset-dark.png";
+import DatasetLight from "../../public/assets/img/dataset-light.png";
+import ThreatSheetDark from "../../public/assets/img/threat-sheet-dark.png";
+import ThreatSheetLight from "../../public/assets/img/threat-sheet-light.png";
+import H2HDark from "../../public/assets/img/h2h-dark.png";
+import H2HLight from "../../public/assets/img/h2h-light.png";
 
 // @ts-ignore
 import Fade from "react-reveal/Fade";
@@ -47,6 +53,16 @@ import { types } from "@shared/cms";
 import FeatureModal from "@src/components/features/FeatureModal";
 import { ArrowRightIcon } from "@sanity/icons";
 import EmailModal from "@src/components/email/email-modal";
+import FeatureGridItem from "@src/components/home/FeatureGridItem";
+import { BiRadar } from "react-icons/bi";
+import { RiBodyScanLine } from "react-icons/ri";
+import { GiSundial } from "react-icons/gi";
+import QuickLinkGrid from "@src/components/home/QuickLinkGrid";
+import LiveUpdates from "@src/components/home/LiveUpdates";
+import { LeaderboardTable } from "@src/components/tables/dataset";
+import DemoOTRChart from "@src/components/home/DemoOTRChart";
+import DemoPredictionChart from "@src/components/home/DemoPredictionChart";
+import DemoSpeakChart from "@src/components/home/DemoSpeakChart";
 
 interface HomeSEOProps {
   title: string;
@@ -96,14 +112,12 @@ const Home = ({
   changelog,
 }: HomeProps) => {
   const [mounted, setMounted] = useState(false);
-  const isLarge = useMediaQuery({
-    query: "(min-width: 768px)",
-  });
   const { theme } = useTheme();
   const router = useRouter();
   useEffect(() => {
     setMounted(true);
   }, []);
+  const tools = useRef<HTMLDivElement | null>(null);
   const [emailModalActive, setEmailModalActive] = useState(false);
 
   const SEO_TITLE = "Debate Land";
@@ -133,121 +147,58 @@ const Home = ({
       />
       <div
         id="beams-bg"
-        className="absolute -z-20 w-full h-[400%] md:h-[200%] bg-cover bg-fixed bg-beams-light dark:bg-beams-dark"
+        className="absolute -z-20 w-full h-[400%] md:h-[225%] bg-cover bg-fixed bg-beams-light dark:bg-beams-dark"
       />
       <section
         id="hero"
         className="w-full md:min-h-screen flex flex-col justify-start md:justify-around"
       >
         <div className="flex flex-col md:flex-row justify-center items-center z-30 mt-20 md:mt-0">
-          <div id="hero-left" className="max-w-[600px] md:ml-5 lg:mr-20">
-            <h1 className="font-bold text-8xl text-center md:text-left md:text-[7rem] lg:text-[8rem] xl:text-[9rem] 2xl:text-[10rem]">
+          <div id="hero-left" className="max-w-[700px] md:ml-5 lg:mr-20">
+            <h1 className="font-semibold text-7xl text-center md:text-left md:text-[7rem] lg:text-[8rem] xl:text-[9rem] 2xl:text-[10rem]">
               DEBATE LAND
             </h1>
-            <h4 className="w-full text-center md:text-left mt-2 md:mt-0 text-indigo-400/80 dark:text-indigo-200 font-bold text-2xl md:text-3xl lg:text-4xl md:pl-1 xl:pl-2">
+            <h4 className="w-full text-center md:text-left mt-2 md:mt-0 text-indigo-500 dark:text-indigo-200 text-2xl md:text-3xl lg:text-4xl md:pl-1 xl:pl-2">
               Data for all things debate.
             </h4>
-            <div className="flex w-full justify-between my-4 md:ml-2">
-              <Formik
-                initialValues={{
-                  query: "",
-                }}
-                validationSchema={Yup.object().shape({
-                  query: Yup.string().required(
-                    "Enter a team name, school, tournament, etc."
-                  ),
-                })}
-                onSubmit={(values) => {
-                  router.push({
-                    pathname: "/search",
-                    query: {
-                      query: values.query,
-                    },
-                  });
-                }}
+            <div className="flex flex-col space-y-3 md:ml-2.5">
+              <QuickLinkGrid />
+              <LiveUpdates />
+              <button
+                className="flex items-center space-x-1 group mx-auto mt-2 md:mx-0"
+                onClick={() => setEmailModalActive(true)}
               >
-                {(props) => (
-                  <div className="w-full">
-                    <form className="flex pointer-events-none select-none relative w-2/3 md:w-[400px] lg:w-[450px] mx-auto md:mx-0 rounded-md">
-                      <div className="absolute w-full h-full flex justify-center items-center bg-gray-200/10 rounded-md backdrop-blur-sm">
-                        <p className="text-center text-xs md:text-[1rem]">
-                          Global search coming soon — use Compass below!
-                        </p>
-                      </div>
-                      <Input
-                        name="query"
-                        onChange={props.handleChange}
-                        placeholder="find anything . . ."
-                        className="w-full shadow"
-                      />
-                      <Button
-                        type="submit"
-                        onClick={props.handleSubmit}
-                        icon={<FaSearch />}
-                        _type="primary"
-                        className="w-8 h-8 !mx-0 !-ml-8"
-                      />
-                    </form>
-                    {props.touched.query && props.errors.query && (
-                      <p className="ml-1 text-red-400">{props.errors.query}</p>
-                    )}
-                    <button
-                      className="flex items-center space-x-1 group mx-auto mt-2 md:mx-0"
-                      onClick={() => setEmailModalActive(true)}
-                    >
-                      <p className="underline text-sm md:text-md text-blue-500">
-                        Stay in the loop
-                      </p>
-                      <ArrowRightIcon className="text-blue-500 group-hover:-rotate-45 group-hover:bg-gradient-to-r group-hover:!text-white from-sky-400 via-purple-500 to-red-400 rounded-full transition-all" />
-                    </button>
-                  </div>
-                )}
-              </Formik>
+                <p className="underline text-sm md:text-md text-red-400">
+                  Stay in the loop
+                </p>
+                <ArrowRightIcon className="text-red-400 group-hover:-rotate-45 group-active:scale-[115%] group-hover:bg-red-400 group-hover:text-white rounded-full transition-all" />
+              </button>
             </div>
           </div>
           <div
             id="hero-right"
-            className="transition-all hover:shadow-halo rounded-lg overflow-hidden cursor-pointer"
-            onClick={() =>
-              router.push(
-                "/teams/36cbd6f9eec6f5f47abb80d5?circuit=40&season=2023"
-              )
-            }
+            className="overflow-hidden h-full group hidden md:block rounded-lg cursor-pointer"
+            onClick={() => tools?.current?.scrollIntoView()}
           >
-            {isLarge && (
-              <div className="w-[750px] xl:w-[1000px] 2xl:w-[1250px] h-auto flex flex-col overflow-hidden border border-gray-400/50 rounded-lg relative">
-                <div className="absolute w-full h-6 bg-white dark:bg-gray-800 flex justify-between items-center">
-                  <div className="w-18 h-6 flex justify-start items-center px-3 space-x-1">
-                    <div className="w-3 h-3 bg-red-500 rounded-full" />
-                    <div className="w-3 h-3 bg-yellow-500 rounded-full" />
-                    <div className="w-3 h-3 bg-green-500 rounded-full" />
-                  </div>
-                  <div className="w-full h-4 rounded border border-gray-400 dark:border-gray-600 bg-gray-50 dark:bg-coal mr-4 flex items-center justify-start">
-                    <FaLock size={8} className="mx-1" />
-                    <p className="text-[0.6rem] align-middle">
-                      debate.land/teams/7f6e1f6807d8416c6f5ac659
-                    </p>
-                  </div>
-                </div>
-                <Image
-                  src={theme == "light" ? WebGraphicLight : WebGraphicDark}
-                  priority={true}
-                  draggable={false}
-                  placeholder="blur"
-                  alt="Team Sample Graphic"
-                  role="presentation"
-                  loading="eager"
+            <div className="min-w-[1200px]">
+              <div className="relative pb-12 pl-4">
+                <LeaderboardTable
+                  demo={{ season: 2023, circuit: 40 }}
+                  count={4206}
                 />
+                <DemoOTRChart />
+                <DemoPredictionChart />
+                <DemoSpeakChart />
               </div>
-            )}
+            </div>
           </div>
         </div>
       </section>
       <section
         id="stats"
-        className="w-full flex flex-col-reverse md:space-x-4 md:flex-row sm:justify-center xl:justify-start xl:space-x-0 mt-32 md:mt-0"
+        className="w-full flex flex-col-reverse md:space-x-4 md:flex-row sm:justify-center xl:justify-start xl:space-x-0 mt-8 md:mt-0"
       >
-        <div className="flex flex-col items-center xl:items-start xl:ml-[20%] xl:w-[15%] xl:border-l-[1px] xl:hover:border-l-4 transition-all pl-4 border-red-400 z-10 my-2 md:my-0">
+        <div className="flex flex-col items-center xl:items-start xl:ml-[20%] xl:w-[15%] xl:border-l-[1px] xl:hover:border-l-4 transition-all md:pl-4 border-red-400 z-10 my-2 md:my-0">
           <CountUp
             className="text-6xl md:text-5xl lg:text-[3vw]"
             start={0}
@@ -256,7 +207,7 @@ const Home = ({
           />
           <Text className="!text-gray-400">Tournaments</Text>
         </div>
-        <div className="flex flex-col items-center xl:items-start xl:w-[15%] xl:border-l-[1px] xl:hover:border-l-4 transition-all pl-4 border-red-400 z-10 my-2 md:my-0">
+        <div className="flex flex-col items-center xl:items-start xl:w-[15%] xl:border-l-[1px] xl:hover:border-l-4 transition-all md:pl-4 border-red-400 z-10 my-2 md:my-0">
           <CountUp
             className="text-6xl md:text-5xl lg:text-[3vw]"
             start={0}
@@ -265,7 +216,7 @@ const Home = ({
           />
           <Text className="!text-gray-400 pb-4 sm:pb-0">Judges</Text>
         </div>
-        <div className="flex flex-col items-center xl:items-start xl:w-[15%] xl:border-l-[1px] xl:hover:border-l-4 transition-all pl-4 border-red-400 z-10 my-2 md:my-0">
+        <div className="flex flex-col items-center xl:items-start xl:w-[15%] xl:border-l-[1px] xl:hover:border-l-4 transition-all md:pl-4 border-red-400 z-10 my-2 md:my-0">
           <CountUp
             className="text-6xl md:text-5xl lg:text-[3vw]"
             start={0}
@@ -274,7 +225,7 @@ const Home = ({
           />
           <Text className="!text-gray-400 pb-4 sm:pb-0">Competitors</Text>
         </div>
-        <div className="flex flex-col items-center xl:items-start xl:w-[15%] xl:border-l-[1px] xl:hover:border-l-4 transition-all pl-4 border-red-400 z-10 my-2 md:my-0">
+        <div className="flex flex-col items-center xl:items-start xl:w-[15%] xl:border-l-[1px] xl:hover:border-l-4 transition-all md:pl-4 border-red-400 z-10 my-2 md:my-0">
           <CountUp
             className="text-6xl md:text-5xl lg:text-[3vw]"
             start={0}
@@ -288,7 +239,7 @@ const Home = ({
         <h3 className="max-w-96 text-xl mx-auto">Backed by the best</h3>
         <div className="my-4 mx-auto flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-4">
           <div className="flex mx-auto space-x-4">
-            <Link href="https://www.nsdebatecamp.com/" className="my-auto">
+            <Link href="https://link.debate.land/nsd" className="my-auto">
               <Image
                 src={theme === "dark" ? NSDDarkLogo : NSDLightLogo}
                 alt="NSD"
@@ -358,7 +309,7 @@ const Home = ({
           </div>
         </div>
       </section>
-      <section className="pt-20 xl:pt-32 relative" id="query-tools">
+      <section className="pt-20 xl:pt-32 relative" id="query-tools" ref={tools}>
         <span
           className="absolute w-full h-[70%] top-0 right-0 -z-10 bg-gradient-to-t from-sky-100 via-sky-100/90 dark:from-gray-900 dark:via-gray-900 dark:to-white/0"
           style={{
@@ -370,105 +321,48 @@ const Home = ({
           <h2 className="text-5xl text-center">
             Meet your new{" "}
             <Fade top>
-              <span className="font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-violet-600">
+              <span className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-violet-600">
                 superpowers
               </span>
             </Fade>
             .
           </h2>
-          <div className="px-5 md:w-[80%] mx-auto xl:w-full flex flex-col lg:flex-row items-center justify-between mt-12 xl:mt-8 2xl:max-w-[2000px]">
-            <div className="lg:mr-10 lg:max-w-[40%] xl:ml-[10%] xl:max-w-[25%]">
-              <h3 className="text-3xl">Search our datasets with ease</h3>
-              <div className="text-xl text-gray-600 dark:text-gray-400 mt-3">
-                <p>
-                  <span className="text-sky-400">Compass</span> lets you easily
-                  select a debate event, circuit, and year to query.
-                </p>
-                <p className="mt-2">
-                  Then, you can easily search for specific teams, or choose
-                  between one of our precompiled mass result sets, such as the
-                  leaderboard.
-                </p>
-              </div>
-            </div>
-            <Fade left distance="20px">
-              <div className="flex w-full">
-                <Compass />
-              </div>
-            </Fade>
-          </div>
-          <div className="px-5 md:w-[80%] mx-auto xl:w-full flex flex-col lg:flex-row-reverse items-center justify-between mt-16 2xl:max-w-[2000px]">
-            <div className="xl:mr-[10%] lg:ml-10 lg:max-w-[40%] xl:max-w-[25%]">
-              <h3 className="text-3xl">Head to Head predictions</h3>
-              <div className="text-xl text-gray-600 dark:text-gray-400 mt-3">
-                <p>
-                  Got a round coming up? Use{" "}
-                  <span className="text-blue-400">X-Ray</span> to generate a
-                  detailed prediction for the matchup.
-                </p>
-                <p className="mt-2">
-                  After selecting a dataset, start typing in two team codes and
-                  select them from our autocomplete dropdown. Then, you'll be
-                  taken to a custom matchup page that'll include predicted win
-                  probabilities, clutch factors, and a previous matchup history.
-                </p>
-              </div>
-            </div>
-            <Fade left distance="20px">
-              <div className="flex w-full relative">
-                <XRay />
-              </div>
-            </Fade>
-          </div>
-          <div className="px-5 md:w-[80%] mx-auto xl:w-full flex flex-col lg:flex-row items-center justify-between mt-16 2xl:max-w-[2000px]">
-            <div className="xl:ml-[10%] xl:mr-5 xl:max-w-[25%]">
-              <h3 className="text-3xl">Detailed judge analytics</h3>
-              <div className="text-xl text-gray-600 dark:text-gray-400 mt-3">
-                <p>
-                  No matter what you're debating, knowing your audience is key
-                  to success. That's why{" "}
-                  <span className="text-violet-400">Telescope</span> provides
-                  detailed information about your judges.
-                </p>
-                <p className="mt-2">
-                  Just enter a judge's name and get bias, squirrel, and
-                  experience scores over any period of time. Remember, these are
-                  stats, not necessarily a reflection of judge quality.
-                </p>
-              </div>
-            </div>
-            <Fade left distance="20px">
-              <div className="flex w-full relative">
-                <div className="absolute backdrop-blur-sm w-full h-full z-40 grid place-items-center">
-                  <p className="text-xl text-violet-400">Coming soon . . .</p>
-                </div>
-                <Telescope />
-              </div>
-            </Fade>
-          </div>
-          <div className="px-5 md:w-[80%] mx-auto xl:w-full flex flex-col lg:flex-row-reverse items-center justify-between mt-16 2xl:max-w-[2000px]">
-            <div className="xl:mr-[10%] lg:ml-10 lg:max-w-[40%] xl:max-w-[25%]">
-              <h3 className="text-3xl">Tailored scouting reports</h3>
-              <div className="text-xl text-gray-600 dark:text-gray-400 mt-3">
-                <p>
-                  You can use <span className="text-red-400">Radar</span> to
-                  generate a scouting report for any Tabroom tournament.
-                </p>
-                <p className="mt-2">
-                  Simply enter the URL to the entries page and let us work our
-                  magic. In seconds, you'll be able to see the records of
-                  exactly who's competing, including a predictive leaderboard.
-                </p>
-              </div>
-            </div>
-            <Fade left distance="20px">
-              <div className="flex w-full relative">
-                {/* <div className="absolute backdrop-blur-sm w-full h-full z-40 grid place-items-center">
-                  <p className="text-xl text-red-400">Coming soon . . .</p>
-                </div> */}
-                <Radar />
-              </div>
-            </Fade>
+          <div className="p-2 grid grid-cols-1 md:grid-cols-3 w-full my-8 gap-2 max-w-[900px] mx-auto">
+            <FeatureGridItem
+              name="Compass"
+              theme="text-sky-300"
+              Icon={FaRegCompass}
+              description="Search our datasets with ease. Get leaderboards, bids, analytics, and more."
+              src={theme === "dark" ? DatasetDark : DatasetLight}
+              slug="compass"
+              wide
+            />
+            <FeatureGridItem
+              name="X-Ray"
+              theme="text-violet-300"
+              Icon={RiBodyScanLine}
+              description="Choose teams, add judges, and get a head-to-head prediction for any round."
+              src={theme === "dark" ? H2HDark : H2HLight}
+              slug="x-ray"
+              tall
+            />
+            <FeatureGridItem
+              name="Radar"
+              theme="text-red-300"
+              Icon={BiRadar}
+              description="Analyze tournaments before they happen. Scout teams and strike judges."
+              src={theme === "dark" ? ThreatSheetDark : ThreatSheetLight}
+              slug="radar"
+            />
+            <FeatureGridItem
+              name="Sundial"
+              theme="text-orange-300"
+              Icon={GiSundial}
+              description="The ultimate bid calendar. Filter by date, independent entry status, bid level, and more."
+              src={theme === "dark" ? H2HDark : H2HLight}
+              onPreviewClick={() => setEmailModalActive(true)}
+              preview
+            />
           </div>
         </div>
       </section>
@@ -476,12 +370,12 @@ const Home = ({
         className="pt-32 mb-32 relative h-[80rem] md:h-[50rem] flex flex-col justify-center"
         id="faq"
       >
-        <span className="absolute w-full h-full top-0 right-0 -z-20 -skew-y-6 bg-slate-800 dark:bg-blue-900/50" />
+        <span className="absolute w-full h-full top-0 right-0 -z-20 -skew-y-6 bg-slate-800" />
         <div>
           <h2 className="mb-10 text-5xl text-center text-white" id="about">
             The{" "}
             <Fade top distance="20px">
-              <span className="font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-violet-600">
+              <span className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-violet-600">
                 best
               </span>
             </Fade>{" "}
@@ -543,7 +437,7 @@ const Home = ({
               </span>
               . Follow what we've been up to at{" "}
               <span
-                className="font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-red-400 tracking-wider uppercase cursor-pointer"
+                className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-red-400 tracking-wider uppercase cursor-pointer"
                 onClick={() => router.push("/blog")}
               >
                 The Forensic Files
@@ -568,7 +462,7 @@ const Home = ({
             >
               Debate{" "}
               <Fade top>
-                <span className="font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-violet-600">
+                <span className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-violet-600">
                   on the go
                 </span>
               </Fade>
@@ -640,7 +534,7 @@ const Home = ({
             >
               API?{" "}
               <Fade top>
-                <span className="font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-violet-600">
+                <span className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-violet-600">
                   Supercharged
                 </span>
               </Fade>
@@ -689,7 +583,15 @@ export const getStaticProps = async ({ preview = false }) => {
     },
   });
 
-  await ssg.feature.compass.prefetch({});
+  await ssg.landingPage.liveUpdates.prefetch();
+  await ssg.landingPage.otrData.prefetch();
+  await ssg.landingPage.speakingData.prefetch();
+  await ssg.dataset.leaderboard.prefetch({
+    season: 2023,
+    circuit: 40,
+    page: 0,
+    limit: 10,
+  });
 
   return {
     props: {

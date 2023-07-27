@@ -1,22 +1,38 @@
 import { z } from 'zod';
 import { procedure, router } from '../trpc';
 import sortRecords from '@src/utils/sort-records';
-import { Topic, TopicTag } from '@shared/database';
+import { Circuit, JudgeRanking, Season, Topic, TopicTag } from '@shared/database';
+import db from '@src/services/db.service';
+
+export type TargetedJudgeRanking = JudgeRanking & {
+  circuitRank: number;
+  season: Season;
+  circuit: Circuit;
+}
+
+export type AggregatedJudgeRanking = {
+  index: number;
+  season_id: number;
+  circuit_id: number;
+  circuit_name: string;
+  z_score: number;
+};
 
 const judgeRouter = router({
   summary: procedure
     .input(
       z.object({
         id: z.string(),
-        season: z.number().optional(),
-        circuit: z.number().optional(),
+        seasons: z.array(z.number()).optional(),
+        circuits: z.array(z.number()).optional(),
         topics: z.array(z.number()).optional(),
         topicTags: z.array(z.number()).optional()
       })
     )
     .query(async ({ input, ctx }) => {
       const { prisma } = ctx;
-      const [judge, ranking, filterData, topics, topicTags] = await Promise.all([
+      const rankingType = input.circuits?.length === 1 && input.seasons?.length === 1 ? "targeted" : "aggregated";
+      const [judge, filterData, topics, topicTags] = await Promise.all([
         prisma.judge.findUnique({
           where: {
             id: input.id
@@ -25,18 +41,18 @@ const judgeRouter = router({
             results: {
               where: {
                 tournament: {
-                  ...(input.circuit && {
+                  ...(input.circuits && {
                     circuits: {
                       some: {
                         id: {
-                          equals: input.circuit
+                          in: input.circuits
                         }
                       }
                     }
                   }),
-                  ...(input.season && {
+                  ...(input.seasons && {
                     seasonId: {
-                      equals: input.season
+                      in: input.seasons
                     }
                   }),
                   ...(input.topics && {
@@ -93,16 +109,16 @@ const judgeRouter = router({
                 },
               },
               where: {
-                ...(input.circuit && {
+                ...(input.circuits && {
                   circuit: {
                     id: {
-                      equals: input.circuit
+                      in: input.circuits
                     }
                   }
                 }),
-                ...(input.season && {
+                ...(input.seasons && {
                   seasonId: {
-                    equals: input.season
+                    in: input.seasons
                   }
                 }),
               }
@@ -115,36 +131,22 @@ const judgeRouter = router({
             }
           }
         }),
-        input.circuit && input.season
-          ? prisma.judgeRanking.findUnique({
-            where: {
-              judgeId_circuitId_seasonId: {
-                judgeId: input.id,
-                circuitId: input.circuit,
-                seasonId: input.season
-              }
-            },
-            select: {
-              index: true
-            }
-          })
-          : null,
         prisma.judgeTournamentResult.findMany({
           where: {
             judgeId: {
               equals: input.id
             },
             tournament: {
-              ...(input.season && {
+              ...(input.seasons && {
                 seasonId: {
-                  equals: input.season
+                  in: input.seasons
                 }
               }),
-              ...(input.circuit && {
+              ...(input.circuits && {
                 circuits: {
                   some: {
                     id: {
-                      equals: input.circuit
+                      in: input.circuits
                     }
                   }
                 }
@@ -164,10 +166,10 @@ const judgeRouter = router({
           }
         })
           .then(d => d
-          .map(({ tournament }) => tournament!.topic)
-          .filter(t => t !== null) as (Topic & { tags: TopicTag[] })[]
-        ),
-       prisma.topic.findMany({
+            .map(({ tournament }) => tournament!.topic)
+            .filter(t => t !== null) as (Topic & { tags: TopicTag[] })[]
+          ),
+        prisma.topic.findMany({
           where: {
             id: {
               in: input.topics || []
@@ -183,6 +185,75 @@ const judgeRouter = router({
         })
       ]);
 
+      let ranking: {
+        aggregated?: AggregatedJudgeRanking[];
+        targeted?: TargetedJudgeRanking;
+      };
+
+      if (rankingType === "targeted") {
+        // Targeting a specific ranking
+        const targeted = (await (await db).query(`
+            SELECT * FROM (
+              SELECT
+                RANK() OVER (ORDER BY \`index\` DESC, t.numRounds DESC) AS circuitRank,
+                judge_id,
+                \`index\`
+              FROM
+                judge_rankings
+              INNER JOIN judges ON judge_rankings.judge_id = judges.id
+              INNER JOIN (
+                SELECT
+                  judgeId,
+                  COUNT(*) / 2 as numRounds
+                FROM _JudgeRecordToRound jrtr
+                INNER JOIN judge_records jr ON jrtr.A = jr.id
+                INNER JOIN tournaments t ON jr.tournamentId = t.id
+                WHERE
+                  t.id IN (
+                    SELECT ctt.B
+                    FROM _CircuitToTournament ctt
+                    WHERE ctt.A = ?
+                  ) AND
+                  t.season_id = ?
+                GROUP BY judgeId
+              ) as t ON judge_rankings.judge_id = t.judgeId
+              WHERE
+                circuit_id = ? AND
+                season_id = ?
+            ) t
+            WHERE judge_id = ?;
+          `, [input.circuits![0], input.seasons![0], input.circuits![0], input.seasons![0], input.id]) as unknown as [
+            TargetedJudgeRanking[],
+            object[],
+          ])[0][0];
+        ranking = { targeted };
+      } else {
+        // Aggregating multiple rankings
+        const aggregated = (await (await db).query(`
+          SELECT
+            tr.\`index\`,
+            s.id as season_id,
+            c.id as circuit_id,
+            c.name as circuit_name,
+            AVG((tr.\`index\` - tr2.avg_score) / tr2.std_dev) AS z_score
+          FROM judge_rankings tr
+          JOIN (
+            SELECT circuit_id, season_id, AVG(\`index\`) AS avg_score, STDDEV_POP(\`index\`) AS std_dev
+            FROM judge_rankings
+            GROUP BY circuit_id, season_id
+          ) AS tr2 ON tr.circuit_id = tr2.circuit_id AND tr.season_id = tr2.season_id
+          JOIN seasons s ON tr.season_id = s.id
+          JOIN circuits c on tr.circuit_id = c.id
+          WHERE tr.judge_id = ? AND tr.circuit_id ${input.circuits?.length ? "IN" : "NOT IN"} ${input.circuits ? `(${input.circuits.join(",")})` : "(-1)"}
+          AND tr.season_id ${input.seasons?.length ? "IN" : "NOT IN"} ${input.seasons ? `(${input.seasons.join(",")})` : "(-1)"}
+          GROUP BY tr.judge_id, tr.circuit_id, tr.season_id, tr.\`index\`;
+        `, [input.id]) as unknown as [
+              AggregatedJudgeRanking[],
+              object[],
+            ])[0];
+        ranking = { aggregated };
+      }
+
       return judge
         ? {
           ...judge,
@@ -191,9 +262,9 @@ const judgeRouter = router({
             topics,
             topicTags
           },
-          ...(ranking && { index: ranking.index })
+          ranking
         }
-        : undefined
+        : null
     }),
   records: procedure
     .input(

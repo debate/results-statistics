@@ -20,7 +20,7 @@ const NsdBadge = ({ size, muted }: NsdBadgeProps) => {
       <Tooltip>
         <TooltipTrigger asChild>
           <a
-            href="https://www.nsdebatecamp.com/"
+            href="https://link.debate.land/nsd"
             target="_blank"
             className="-mb-2 md:mb-0 inline-block ml-2"
           >

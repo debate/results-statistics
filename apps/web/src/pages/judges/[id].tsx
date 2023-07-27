@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+/* eslint-disable @next/next/no-html-link-for-pages */
+import React, { useMemo } from "react";
 import { useRouter } from "next/router";
 import { trpc } from "@src/utils/trpc";
 import { NextSeo } from "next-seo";
@@ -19,17 +20,25 @@ import Paradigm from "@src/components/features/Paradigm";
 import JudgeDifferentialTable from "@src/components/tables/judge/JudgeDifferentialTable";
 import CommandBar from "@src/components/features/CommandBar";
 import JudgeSummary from "@src/components/features/JudgeSummary";
+import boundPct from "@src/utils/bound-pct";
+import getPercentile from "@src/utils/get-percentile";
+import getFilterSummary from "@src/utils/get-filter-summary";
+import getStringFromList from "@src/utils/get-string-from-list";
 
 const Judge = () => {
   const { query, isReady, asPath } = useRouter();
   const { data } = trpc.judge.summary.useQuery(
     {
       id: query.id as string,
-      ...(query.circuit && {
-        circuit: parseInt(query.circuit as unknown as string),
+      ...(query.circuits && {
+        circuits: (query.circuits as unknown as string)
+          .split(",")
+          .map((c) => parseInt(c)),
       }),
-      ...(query.season && {
-        season: parseInt(query.season as unknown as string),
+      ...(query.seasons && {
+        seasons: (query.seasons as unknown as string)
+          .split(",")
+          .map((c) => parseInt(c)),
       }),
       ...(query.topics && {
         topics: (query.topics as string).split(",").map((t) => parseInt(t)),
@@ -48,6 +57,32 @@ const Judge = () => {
       staleTime: 1000 * 60 * 60 * 24,
     }
   );
+  const rankingData: [undefined | string, undefined | string] = useMemo(() => {
+    if (!data || (!data.ranking.targeted && !data.ranking.aggregated))
+      return [undefined, undefined];
+    if (data.ranking.targeted) {
+      return [
+        "#" + data.ranking.targeted.circuitRank,
+        data.ranking.targeted.index.toFixed(1),
+      ];
+    } else if (data.ranking.aggregated) {
+      let rawAvg = _.round(
+        _.mean(data.ranking.aggregated.map((r) => r.z_score)),
+        1
+      );
+      let avg = `${rawAvg >= 0 ? "+" : ""}${rawAvg}`;
+      const pctl =
+        boundPct(
+          _.round(
+            getPercentile(
+              _.mean(data.ranking.aggregated.map((r) => r.z_score))
+            ) * 100
+          )
+        ) + "%";
+      return [pctl, avg];
+    }
+    return [undefined, undefined];
+  }, [data]);
 
   const numRounds = data?.results
     ?.map(
@@ -119,9 +154,15 @@ const Judge = () => {
                   judgeId: data?.id,
                 }}
               >
-                {getEnumName(data.rankings[0].circuit.event)} |{" "}
-                {data.rankings[0].circuit.name} |{" "}
-                {query.season || "All Seasons"}
+                {getFilterSummary(
+                  data.rankings.map((r) => r.circuit.event),
+                  data.rankings.map((r) => r.circuit.name),
+                  !!query.seasons
+                    ? (query.seasons as string)
+                        .split(",")
+                        .map((s) => parseInt(s))
+                    : undefined
+                )}
               </CommandBar>
             ) : undefined
           }
@@ -129,20 +170,52 @@ const Judge = () => {
             <Statistics
               primary={[
                 {
-                  value: data ? data.index?.toFixed(1) : undefined,
-                  description: "Judge Index",
+                  value: rankingData[0],
+                  ...(data?.ranking?.aggregated
+                    ? {
+                        description: "Judge Pctl. Rank",
+                        tooltip:
+                          "Judge percentile ranking on circuit/season combination in view.",
+                      }
+                    : {
+                        description: "Judge Rank",
+                        tooltip:
+                          "Judge ranking on circuit/season combination in view.",
+                      }),
+                },
+                {
+                  value: rankingData[1],
+                  ...(data?.ranking?.aggregated
+                    ? {
+                        description: "Avg. Index Z-Score",
+                        tooltip: (
+                          <>
+                            The average number of std. deviations a judge's
+                            Index score is from the circuit mean. To learn more,
+                            click <a href="/methodology">here</a>.
+                          </>
+                        ),
+                      }
+                    : {
+                        description: "Index Score",
+                        tooltip: (
+                          <>
+                            A total aggregate score of how close to expected win
+                            percentages a judge's ballots were. To learn more,
+                            click <a href="/methodology">here</a>.
+                          </>
+                        ),
+                      }),
                 },
                 {
                   value: data ? numRounds : undefined,
                   description: "Rounds",
+                  tooltip: "Number of rounds judged on the circuit.",
                 },
                 {
                   value: !isNaN(avgSpeaks) ? avgSpeaks : "--",
                   description: "Avg. Speaks",
-                },
-                {
-                  value: !isNaN(avgStdSpeaks) ? avgStdSpeaks : "--",
-                  description: "Avg. σ Speaks",
+                  tooltip: "Average speaker points awarded on the circuit.",
                 },
               ]}
             />
@@ -150,9 +223,26 @@ const Judge = () => {
         />
         <JudgeSummary
           name={data?.name}
-          index={data?.index}
-          circuitName={data?.rankings[0]?.circuit.name}
-          event={data?.rankings[0]?.circuit.event}
+          rank={
+            data?.ranking.targeted
+              ? `is the ${rankingData[0]} judge`
+              : `places above ${rankingData[0]} of judges (by index)`
+          }
+          circuits={
+            data
+              ? (data.ranking.targeted && [data.rankings[0].circuit.name]) ||
+                (data.ranking.aggregated &&
+                  _.uniq(data.ranking.aggregated.map((r) => r.circuit_name)))
+              : undefined
+          }
+          seasons={
+            data
+              ? (data.ranking.targeted && [data.rankings[0].seasonId]) ||
+                (data.ranking.aggregated &&
+                  _.uniq(data.ranking.aggregated.map((r) => r.season_id)))
+              : undefined
+          }
+          events={_.uniq(data?.rankings.map((r) => r.circuit.event))}
           topics={data?.filter.topics}
           topicTags={data?.filter.topicTags}
           numRounds={numRounds}
@@ -170,8 +260,8 @@ const Judge = () => {
 
 interface JudgeParams extends ParsedUrlQuery {
   id: string;
-  circuit?: string;
-  season?: string;
+  circuits?: string;
+  seasons?: string;
   topics?: string;
   topicTags?: string;
 }
@@ -184,15 +274,15 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     },
   });
 
-  const { id, circuit, season, topics, topicTags } = ctx.query as JudgeParams;
+  const { id, circuits, seasons, topics, topicTags } = ctx.query as JudgeParams;
 
   await ssg.judge.summary.prefetch({
     id,
-    ...(circuit && { circuit: parseInt(circuit) }),
-    ...(season && { season: parseInt(season) }),
-    ...(topics && { topics: topics?.split(",").map((t) => parseInt(t)) }),
+    ...(circuits && { circuits: circuits.split(",").map(parseInt) }),
+    ...(seasons && { seasons: seasons.split(",").map(parseInt) }),
+    ...(topics && { topics: topics?.split(",").map(parseInt) }),
     ...(topicTags && {
-      topicTags: topicTags?.split(",").map((t) => parseInt(t)),
+      topicTags: topicTags?.split(",").map(parseInt),
     }),
   });
 

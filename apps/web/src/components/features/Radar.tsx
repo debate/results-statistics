@@ -220,7 +220,7 @@ const Radar = () => {
       icon={<BiRadar />}
       title="Radar"
       theme="text-red-400"
-      className="min-w-full md:min-w-[300px] md:max-w-[800px] m-10 mx-auto bg-sky-100 dark:bg-black shadow-2xl shadow-red-400/50 p-2"
+      className="bg-sky-100 dark:bg-black shadow-2xl shadow-red-400/50 p-2"
     >
       <form className="space-y-2 w-full">
         <Group
@@ -252,7 +252,7 @@ const Radar = () => {
         <Group
           character="3"
           legend="Get your results"
-          className="flex justify-center w-full"
+          className="flex flex-col md:flex-row justify-center items-center w-full"
         >
           <Button
             _type="primary"
@@ -270,7 +270,7 @@ const Radar = () => {
           >
             Strike Sheet
           </Button>
-          <p className="px-1 pt-px text-red-400 border-red-400 border rounded-full !mt-0">
+          <p className="px-1 w-fit pt-px text-red-400 border-red-400 border rounded-full !my-2">
             OR
           </p>
           <Button

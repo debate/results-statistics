@@ -9,8 +9,9 @@ import { Balancer } from "react-wrap-balancer";
 
 interface TeamSummaryProps {
   code?: string;
-  rank?: number;
-  circuitName?: string;
+  rank?: string;
+  circuits?: string[];
+  seasons?: number[];
   event?: Event;
   topics?: Topic[];
   topicTags?: TopicTag[];
@@ -25,21 +26,31 @@ const TeamSummary = (props: TeamSummaryProps) => {
     <Card
       icon={<HiOutlineLightBulb />}
       title="Summary"
-      className="relative max-w-[800px] mx-auto my-4 md:my-8 grid place-items-start"
+      className="relative max-w-[800px] mx-auto my-4 md:my-8"
     >
-      <p className="flex flex-wrap space-x-1 text-center">
+      <p className="mx-auto text-center">
         <Balancer>
-          {props.code || <Loader width={22} height={6} />} is the{" "}
-          {props.rank ? "#" + props.rank : <Loader width={8} height={6} />} team
-          on the{" "}
-          {props.circuitName?.toLowerCase() || <Loader width={14} height={6} />}{" "}
-          circuit for{" "}
+          {props.code || <Loader width={22} height={6} />}{" "}
+          {props.rank ?? <Loader width={8} height={6} />} on the{" "}
+          {props.circuits ? (
+            getStringFromList(props.circuits.map((n) => n.toLowerCase()))
+          ) : (
+            <Loader width={14} height={6} />
+          )}{" "}
+          circuit{(props.circuits?.length || 1) > 1 ? "s" : ""} for{" "}
           {props.event ? (
             getEnumName(props.event)
           ) : (
             <Loader width={14} height={6} />
           )}{" "}
-          debate. After filtering by{" "}
+          debate during the{" "}
+          {props.seasons ? (
+            getStringFromList(props.seasons.map((n) => n.toString()))
+          ) : (
+            <Loader width={14} height={6} />
+          )}{" "}
+          season{(props.seasons?.length || 1) > 1 ? "s" : ""}. After further
+          filtering by{" "}
           {props.topics ? (
             props.topics.length ? (
               `the following topics: ${getStringFromList(

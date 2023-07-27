@@ -110,7 +110,7 @@ const Compass = () => {
       icon={<FaRegCompass />}
       title="Compass"
       theme="text-sky-400"
-      className="min-w-full md:min-w-[300px] max-w-[800px] m-10 mx-auto bg-sky-100 dark:bg-black shadow-2xl shadow-sky-400/70 dark:shadow-sky-400/50 p-2"
+      className="bg-sky-100 dark:bg-black shadow-2xl shadow-sky-400/70 dark:shadow-sky-400/50 p-2"
     >
       <Formik
         innerRef={formikRef}
@@ -130,8 +130,8 @@ const Compass = () => {
           router.push({
             pathname: values.query ? "/search" : "/dataset",
             query: {
-              circuit: values.circuit,
-              season: values.season,
+              circuits: values.circuit,
+              seasons: values.season,
               ...(values.query && { query: values.query }),
             },
           });

@@ -28,6 +28,7 @@ import { GiAtomicSlashes } from "react-icons/gi";
 import { HiOutlineSwitchHorizontal } from "react-icons/hi";
 import { Bar, BarChart, Cell, LabelList, XAxis, YAxis } from "recharts";
 import _ from "lodash";
+import boundPct from "@src/utils/bound-pct";
 
 interface HeadToHeadParams extends ParsedUrlQuery {
   event: string;
@@ -37,12 +38,6 @@ interface HeadToHeadParams extends ParsedUrlQuery {
   team2: string;
   judges?: string;
 }
-
-const boundWp = (wp: number) => {
-  if (wp > 99) return 99;
-  else if (wp < 1) return 1;
-  return Math.floor(wp * 10) / 10;
-};
 
 const truncateTeamCode = (code: string) => {
   let truncated = "";
@@ -105,7 +100,7 @@ const HeadToHead = () => {
   const team1Wp = useMemo(
     () =>
       team1Otr !== undefined && team2Otr !== undefined
-        ? boundWp(
+        ? boundPct(
             team1Otr > team2Otr
               ? 100 * getExpectedWP(team1Otr, team2Otr, avgJudgeIndex)
               : 100 - 100 * getExpectedWP(team1Otr, team2Otr, avgJudgeIndex)
@@ -116,7 +111,7 @@ const HeadToHead = () => {
   const team2Wp = useMemo(
     () =>
       team1Otr !== undefined && team2Otr !== undefined
-        ? boundWp(
+        ? boundPct(
             team1Otr > team2Otr
               ? 100 - 100 * getExpectedWP(team1Otr, team2Otr, avgJudgeIndex)
               : 100 * getExpectedWP(team1Otr, team2Otr, avgJudgeIndex)
@@ -224,8 +219,8 @@ const HeadToHead = () => {
                     push({
                       pathname: `/teams/${query.team1}`,
                       query: {
-                        circuit: query.circuit,
-                        season: query.season,
+                        circuits: query.circuit,
+                        seasons: query.season,
                       },
                     })
                   }
@@ -240,8 +235,8 @@ const HeadToHead = () => {
                     push({
                       pathname: `/teams/${query.team2}`,
                       query: {
-                        circuit: query.circuit,
-                        season: query.season,
+                        circuits: query.circuit,
+                        seasons: query.season,
                       },
                     })
                   }
@@ -300,8 +295,8 @@ const HeadToHead = () => {
                   position="insideBottom"
                   angle={0}
                   offset={5}
-                  fill={theme === "dark" ? "white" : "black"}
-                  fontWeight="bold"
+                  fill={!theme || theme === "dark" ? "white" : "black"}
+                  fontWeight="600"
                 />
                 <Cell fill="rgb(56 189 248)" />
                 <Cell fill="rgb(167 139 250)" />
@@ -330,7 +325,7 @@ const HeadToHead = () => {
               {team1Otr !== undefined && team2Otr !== undefined ? (
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-violet-400">
                   {Math.floor(
-                    boundWp(
+                    boundPct(
                       getExpectedWP(team1Otr, team2Otr, avgJudgeIndex) * 100
                     ) * 10
                   ) / 10}

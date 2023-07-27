@@ -1,12 +1,12 @@
-import React from 'react'
-import { trpc } from '@src/utils/trpc'
-import { useRouter } from 'next/router'
-import Overview from '@src/components/layout/Overview';
-import { NextSeo } from 'next-seo';
-import { Card } from '@shared/components';
-import { FaSearch } from 'react-icons/fa';
-import SearchResult from '@src/components/search-result';
-import omit from 'lodash/omit';
+import React from "react";
+import { trpc } from "@src/utils/trpc";
+import { useRouter } from "next/router";
+import Overview from "@src/components/layout/Overview";
+import { NextSeo } from "next-seo";
+import { Card } from "@shared/components";
+import { FaSearch } from "react-icons/fa";
+import SearchResult from "@src/components/search-result";
+import omit from "lodash/omit";
 
 const Search = () => {
   const { query, isReady, asPath, ...router } = useRouter();
@@ -26,7 +26,8 @@ const Search = () => {
   );
 
   const SEO_TITLE = "Compass Search";
-  const SEO_DESCRIPTION = "Find Leaderboards, Teams, Competitors, Judges, Tournaments, and more with ease.";
+  const SEO_DESCRIPTION =
+    "Find Leaderboards, Teams, Competitors, Judges, Tournaments, and more with ease.";
 
   return (
     <>
@@ -36,16 +37,18 @@ const Search = () => {
         openGraph={{
           title: SEO_TITLE,
           description: SEO_DESCRIPTION,
-          type: 'website',
+          type: "website",
           url: `https://debate.land${asPath}`,
-          images: [{
-            url: `https://debate.land/api/og?title=${SEO_TITLE}&label=Search`
-          }]
+          images: [
+            {
+              url: `https://debate.land/api/og?title=${SEO_TITLE}&label=Search`,
+            },
+          ],
         }}
         additionalLinkTags={[
           {
-            rel: 'icon',
-            href: '/favicon.ico',
+            rel: "icon",
+            href: "/favicon.ico",
           },
         ]}
         noindex
@@ -56,8 +59,10 @@ const Search = () => {
           heading={`Results for "${query.query as string}"`}
           subtitle="exclusively on Debate Land"
           underview={
-            <div className='py-3 uppercase' style={{ letterSpacing: '0.1em' }}>
-              <p className="bg-gradient-to-r from-sky-400 via-purple-500 to-red-400 text-transparent bg-clip-text text-center">Searching Teams, Competitors, Judges, and Tournaments</p>
+            <div className="py-3 uppercase" style={{ letterSpacing: "0.1em" }}>
+              <p className="bg-gradient-to-r from-sky-400 via-purple-500 to-red-400 text-transparent bg-clip-text text-center">
+                Searching Teams, Competitors, Judges, and Tournaments
+              </p>
             </div>
           }
         />
@@ -66,43 +71,41 @@ const Search = () => {
           icon={<FaSearch className="text-xl md:text-2xl lg:text-3xl" />}
           className="min-w-full md:min-w-[300px] max-w-[700px] m-10 mx-auto p-2"
         >
-          {
-            data && data.length
-              ? data.map(({ name, id, type }) => (
-                <SearchResult
-                  name={name}
-                  tag={type}
-                  key={id}
-                  onClick={() => {
-                    let pathname = `/${type[0].toLowerCase()}${type.substring(1)}s/${id}`;
-                    router.push({
-                      pathname,
-                      query: omit(query, ['query', 'event'])
-                    })
-                  }}
-                />
-              ))
-              : data === undefined
-                ? (
-                  <>
-                    <div className="bg-gray-300/40 dark:bg-gray-700/40 animate-pulse h-6 rounded w-full" />
-                    <div className="bg-gray-300/40 dark:bg-gray-700/40 animate-pulse h-6 rounded w-full"/>
-                    <div className="bg-gray-300/40 dark:bg-gray-700/40 animate-pulse h-6 rounded w-full"/>
-                    <div className="bg-gray-300/40 dark:bg-gray-700/40 animate-pulse h-6 rounded w-full"/>
-                    <div className="bg-gray-300/40 dark:bg-gray-700/40 animate-pulse h-6 rounded w-full"/>
-                    <div className="bg-gray-300/40 dark:bg-gray-700/40 animate-pulse h-6 rounded w-full"/>
-                  </>
-                )
-                : (
-                  <p className="w-full text-center text-red-400">
-                    Whoops! We searched far and wide, but came up short. Try again?
-                  </p>
-                )
-          }
+          {data && data.length ? (
+            data.map(({ name, id, type }) => (
+              <SearchResult
+                name={name}
+                tag={type}
+                key={id}
+                onClick={() => {
+                  let pathname = `/${type[0].toLowerCase()}${type.substring(
+                    1
+                  )}s/${id}`;
+                  router.push({
+                    pathname,
+                    query: omit(query, ["query", "event"]),
+                  });
+                }}
+              />
+            ))
+          ) : data === undefined ? (
+            <>
+              <div className="bg-gray-300/40 dark:bg-gray-700/40 animate-pulse h-6 rounded w-full" />
+              <div className="bg-gray-300/40 dark:bg-gray-700/40 animate-pulse h-6 rounded w-full" />
+              <div className="bg-gray-300/40 dark:bg-gray-700/40 animate-pulse h-6 rounded w-full" />
+              <div className="bg-gray-300/40 dark:bg-gray-700/40 animate-pulse h-6 rounded w-full" />
+              <div className="bg-gray-300/40 dark:bg-gray-700/40 animate-pulse h-6 rounded w-full" />
+              <div className="bg-gray-300/40 dark:bg-gray-700/40 animate-pulse h-6 rounded w-full" />
+            </>
+          ) : (
+            <p className="w-full text-center text-red-400">
+              Whoops! We searched far and wide, but came up short. Try again?
+            </p>
+          )}
         </Card>
       </div>
     </>
-  )
-}
+  );
+};
 
-export default Search
+export default Search;

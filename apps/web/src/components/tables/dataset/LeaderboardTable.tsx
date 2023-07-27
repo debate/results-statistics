@@ -11,6 +11,7 @@ import {
   PaginationState,
 } from "@tanstack/react-table";
 import NsdBadge from "@src/components/nsd-badge";
+import clsx from "clsx";
 
 type LeaderboardRow = {
   team: {
@@ -29,9 +30,13 @@ type LeaderboardRow = {
 
 interface LeaderboardTableProps {
   count: number;
+  demo?: {
+    season: number;
+    circuit: number;
+  };
 }
 
-const LeaderboardTable = ({ count }: LeaderboardTableProps) => {
+const LeaderboardTable = ({ count, demo }: LeaderboardTableProps) => {
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
@@ -39,8 +44,12 @@ const LeaderboardTable = ({ count }: LeaderboardTableProps) => {
   const { query, isReady, ...router } = useRouter();
   const { data } = trpc.dataset.leaderboard.useQuery(
     {
-      season: parseInt(query.season as unknown as string),
-      circuit: parseInt(query.circuit as unknown as string),
+      season:
+        demo?.season ??
+        parseInt((query.seasons as unknown as string).split(",")[0]),
+      circuit:
+        demo?.circuit ??
+        parseInt((query.circuits as unknown as string).split(",")[0]),
       limit: pagination.pageSize,
       page: pagination.pageIndex,
     },
@@ -58,8 +67,14 @@ const LeaderboardTable = ({ count }: LeaderboardTableProps) => {
     <Card
       icon={<BsTrophy />}
       title="Teams"
-      className="max-w-[800px] mx-auto my-4 md:my-8"
-      collapsible
+      className={clsx({
+        "max-w-[800px] mx-auto my-4 md:my-8": !demo,
+        "w-[1000px] relative pointer-events-none": !!demo,
+      })}
+      {...(demo && {
+        theme: "text-indigo-500 dark:text-indigo-400",
+      })}
+      collapsible={!demo}
     >
       <Table
         data={data as LeaderboardRow[] | undefined}
