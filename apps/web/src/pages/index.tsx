@@ -602,7 +602,7 @@ export const getStaticProps = async ({ preview = false }) => {
       trpcState: ssg.dehydrate(),
       changelog,
     },
-    revalidate: 60 * 30, // Half hour
+    revalidate: 60 * 60 * 24, // One Day
   };
 };
 
