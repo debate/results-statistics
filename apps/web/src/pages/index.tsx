@@ -360,8 +360,7 @@ const Home = ({
               Icon={GiSundial}
               description="The ultimate bid calendar. Filter by date, independent entry status, bid level, and more."
               src={theme === "dark" ? H2HDark : H2HLight}
-              onPreviewClick={() => setEmailModalActive(true)}
-              preview
+              slug="sundial"
             />
           </div>
         </div>
