@@ -5,6 +5,7 @@ import React from "react";
 import { IconType } from "react-icons";
 import { BiRadar } from "react-icons/bi";
 import { FaRegCompass } from "react-icons/fa";
+import { GiSundial } from "react-icons/gi";
 import { RiBodyScanLine } from "react-icons/ri";
 
 const ToolbarNavigation = () => {
@@ -37,6 +38,13 @@ const ToolbarNavigation = () => {
       color: "text-red-400",
       hover: "hover:text-red-400/50",
       active: "active:text-red-400",
+    },
+    {
+      Icon: GiSundial,
+      slug: "sundial",
+      color: "text-orange-300",
+      hover: "hover:text-orange-300/50",
+      active: "active:text-orange-300",
     },
   ];
 

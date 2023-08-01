@@ -10,7 +10,7 @@ As a part of our 2023 expansion to support the Public Forum, Lincoln Douglas, Po
 
 ## Getting Started
 
-You can reproduce this site by first copying the environment variables in `.env.local` to `.env` and filling them in. For an MVP, you can just worry about filling in the database url. We use [Planet Scale](https://planetscale.com), but any database supported by Prisma will do.
+You can reproduce this site by first copying the environment variables in `.env.local` to `.env` and filling them in. _Note: those on the Debate Land core team should request to be onboarded onto [Infisical](https://infisical.com), which is our secrets management platform._ For an MVP, you can just worry about filling in the database url. We use [Planet Scale](https://planetscale.com), but any database supported by Prisma will do.
 
 Then, ensure you've configured Turborepo by running:
 

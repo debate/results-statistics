@@ -360,8 +360,7 @@ const Home = ({
               Icon={GiSundial}
               description="The ultimate bid calendar. Filter by date, independent entry status, bid level, and more."
               src={theme === "dark" ? H2HDark : H2HLight}
-              onPreviewClick={() => setEmailModalActive(true)}
-              preview
+              slug="sundial"
             />
           </div>
         </div>
@@ -602,7 +601,7 @@ export const getStaticProps = async ({ preview = false }) => {
       trpcState: ssg.dehydrate(),
       changelog,
     },
-    revalidate: 60 * 30, // Half hour
+    revalidate: 60 * 60 * 24, // One Day
   };
 };
 
