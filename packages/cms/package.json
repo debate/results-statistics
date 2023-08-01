@@ -29,7 +29,7 @@
     "@types/node": "18.15.7",
     "config": "*",
     "eslint": "8.36.0",
-    "tsup": "^7.1.0",
+    "tsup": "^5.10.1",
     "typescript": "^5.0.2"
   }
 }
