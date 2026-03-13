@@ -18,13 +18,13 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "generate": "turbo run generate",
     "lint": "turbo run lint",
-    "postinstall": "prisma generate"
+    "postinstall": "yarn generate"
   },
   "devDependencies": {
+    "dotenv-cli": "latest",
     "prettier": "^2.5.1",
     "tsx": "^3.7.1",
-    "turbo": "latest",
-    "dotenv-cli": "latest"
+    "turbo": "latest"
   },
   "packageManager": "yarn@1.22.17"
 }
